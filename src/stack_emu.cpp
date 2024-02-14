@@ -119,6 +119,9 @@ int main(int argc, char* argv[]) {
 			st.pop();
 			a = st.top();
 			st.pop();
+			if (b.isZero()) {
+				throw runtime_error("DIV: Division by zero");
+			}
 			a.precision = a.digits_size + a.exponent;
 			auto res = a / b;
 			a.precision = INT_MAX;
