@@ -16,7 +16,7 @@ GREEN   = \033[1;35m
 BCYAN   = \033[1;36m
 RESET   = \033[0m
 
-INCLUDES = 
+INCLUDES = stack/stack.cpp stack/stack.hpp test/test.cpp src/stack_emu.cpp
 CFLAGS += -I $(abspath include) -I $(abspath stack) -I $(abspath test) 
 
 SOURCES = \

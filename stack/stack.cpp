@@ -73,18 +73,19 @@ namespace stack_emu {
 	}
 
 	template <class T>
-	stack<T>::stack(stack &other) {
+	stack<T>::stack(stack &&other) noexcept {
 		if (&other == this) {
 			return;
 		}
 		free(data);
 		data = nullptr;
-		sz = other.sz;
+		sz = 0;
 		swap(data, other.data);
+		swap(sz, other.sz);
 	}
 
 	template <class T>
-	stack<T>& stack<T>::operator=(stack &other) {	
+	stack<T>& stack<T>::operator=(stack &&other) noexcept {	
 		if (&other == this) {
 			return *this;
 		}
@@ -142,10 +143,11 @@ namespace stack_emu {
 	}
 
 	template<class T>
-	bool stack<T>::operator==(const stack &other) const {
+	bool stack<T>::operator==(const stack &other) const {		
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = 0; i < sz; i++) {
+
 			if (!(data[i] == other.data[i])) {
 				return false;
 			}

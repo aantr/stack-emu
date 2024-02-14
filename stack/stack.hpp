@@ -18,8 +18,8 @@ namespace stack_emu {
 
 		stack(const stack &ohter); // copy
 		stack& operator=(const stack &other); // copy
-		stack(stack &other); // move
-		stack& operator=(stack &other); // move
+		stack(stack &&other) noexcept; // move
+		stack& operator=(stack &&other) noexcept; // move
 
 		~stack();
 

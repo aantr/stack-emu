@@ -74,13 +74,16 @@ TEST_ (FiveRule)
 	stack<int> s1(5); // 5 zeroes
 	stack<int> s2(5, 5); // 5 fives
 	
-	stack<int> s3{std::move(s2)};
+	stack<int> s3(s2); // copy
+
 	ASSERT(s3 == s2);
 
-	s1 = s3;
-	ASSERT(s1 == s2); // copy
-	ASSERT(s2 != s3); // copy effect
+	stack<int> s4{std::move(s3)};
+	ASSERT(s4 == s2); // move
+	ASSERT(s2 != s3); // move effect
 
+	s3 = s2; // copy
+	ASSERT(s3 == s2);
 
 _TEST
 
