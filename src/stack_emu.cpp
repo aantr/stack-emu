@@ -10,31 +10,25 @@ using namespace stack_emu;
 using namespace arithmetic;
 using namespace std;
 
-int main(int argc, char* argv[]) {
+const char* DELIMITER = "%";
+const char* XOR = "#";
 
-	if (argc != 2) {
-		cout << "Usage: {executable} {path_to_file}" << endl;
-		return 0;
+void compile(const char* filename) {
+	ifstream stream;
+	stream.open(filename);
+	if (!stream.is_open()) {
+		cout << "Cannot open file " << filename << endl;
+		return;
 	}
-	ifstream sin;
-	sin.open(argv[1]);
-	if (!sin.is_open()) {
-		cout << "Cannot open file " << argv[1] << endl;
-		return 0;
-	}
-	cout << "Reading file " << argv[1] << endl;
+	
 	string inp;
-	bool was_begin = false;
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
-	stack<LongDouble> st;
-	const size_t REG_SIZE = 32;
-	LongDouble reg[REG_SIZE] = {};
 	char **commands = (char**) malloc(0);
 	size_t commands_size = 0;
 	map<string, size_t> labels;
 	bool was_label = false;
-	while (sin >> inp) { // compile
+	while (stream >> inp) { // compile
 		commands_size++;
 		commands = (char**) realloc(commands, commands_size * sizeof(char*));
 		char* command = (char*) malloc(inp.size() * sizeof(char));
@@ -53,7 +47,79 @@ int main(int argc, char* argv[]) {
 	if (was_label) {
 		throw runtime_error("LABEL: Expected input");
 	}
+	stream.close();
+	ofstream out(string(filename) + ".out", ios::binary);
+	if (!out.is_open()) {
+		cout << "Cannot write file " << filename << ".out" << endl;
+		return;
+	}
+	for (size_t i = 0; i < commands_size; i++) {
+		size_t len = strlen(commands[i]);
+		for (size_t j = 0; j < len; j++) {
+			commands[i][j] ^= XOR[0];
+		}
+		out.write(commands[i], strlen(commands[i]) * sizeof(char));
+		if (i + 1 < commands_size) {
+			char what_write[1];
+			what_write[0] = (char) (DELIMITER[0] ^ XOR[0]);
+			out.write(what_write, strlen(DELIMITER) * sizeof(char));
+		}
+	}
+}
 
+void emulate(const char* filename) {
+	// run
+	// read bin
+
+	char **commands = (char**) malloc(sizeof(char*));
+	size_t commands_size = 1;
+	commands[commands_size - 1] = (char*) malloc(0);
+
+	ifstream stream(filename, ios::binary);
+	if (!stream.is_open()) {
+		cout << "Cannot open file " << filename << endl;
+		return;
+	}
+
+	char read[1];
+	size_t current_size = 0;
+
+	while (stream.read(read, 1), stream) {
+		read[0] ^= XOR[0];
+		if (read[0] == DELIMITER[0]) {
+			commands_size++;
+			commands = (char**) realloc(commands, commands_size * sizeof(char*));
+			commands[commands_size - 1] = (char*) malloc(0);
+			current_size = 0;
+		} else {
+			current_size++;
+			commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
+			commands[commands_size - 1][current_size - 1] = read[0];
+		}
+	}
+	stream.close();
+	if (current_size == 0 && commands_size == 1) {
+		commands_size--;
+	}
+
+	string inp;
+	map<string, size_t> labels;
+	for (size_t i = 0; i < commands_size; i++) {
+		if (commands[i] == string("LABEL")) {
+			if (i == commands_size - 1) {
+				throw runtime_error("LABEL: Expected input");
+			}
+			labels[commands[i + 1]] = i + 2;
+		}
+	}
+	LongDouble::default_precision = INT_MAX;
+	cout << setprecision(INT_MAX);
+
+	stack<LongDouble> st;
+	bool was_begin = false;
+	const size_t REG_SIZE = 32;
+	LongDouble reg[REG_SIZE] = {};
+	
 	size_t current_command = 0;
 	while (current_command < commands_size) {
 		inp = commands[current_command++];
@@ -313,7 +379,6 @@ int main(int argc, char* argv[]) {
 			throw runtime_error("Unexpected command " + inp);
 		}
 	}
-	sin.close();
 	for (size_t i = 0; i < commands_size; i++) {
 		free(commands[i]);
 	}
@@ -321,7 +386,18 @@ int main(int argc, char* argv[]) {
 	if (was_begin) {
 		throw runtime_error("END command expected");
 	}
-	cout << "Finished" << endl;
+}
 
+int main(int argc, char* argv[]) {
+
+	if (argc != 3 || !(argv[1] == string("compile") || argv[1] == string("emulate"))) {
+		cout << "Usage: {executable} {compile|emulate} {path_to_file}" << endl;
+		return 0;
+	}
+	if (argv[1] == string("compile")) {
+		compile(argv[2]);
+	} else {
+		emulate(argv[2]);
+	}
  
 }
