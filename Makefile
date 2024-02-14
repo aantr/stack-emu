@@ -16,14 +16,29 @@ GREEN   = \033[1;35m
 BCYAN   = \033[1;36m
 RESET   = \033[0m
 
-INCLUDES = stack/stack.cpp stack/stack.hpp test/test.cpp src/stack_emu.cpp
-CFLAGS += -I $(abspath include) -I $(abspath stack) -I $(abspath test) 
+# project dependencies
+INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
+			long_arithmetic/fft/fft.hpp \
+			stack/stack.hpp \
+			test/test_system.hpp
 
+
+CFLAGS += -I $(abspath include) \
+		-I $(abspath stack)  \
+		-I $(abspath test) \
+		-I $(abspath long_arithmetic/arithmetic) \
+		-I $(abspath long_arithmetic/fft) \
+
+# what needs to be compiled
 SOURCES = \
 	stack/stack.cpp \
-	test/test_system.cpp
+	test/test_system.cpp \
+	long_arithmetic/arithmetic/arithmetic.cpp \
+	long_arithmetic/arithmetic/arithmetic_operators.cpp \
+	long_arithmetic/fft/fft.cpp
 
 
+# related to commands
 SOURCE_EXECUTABLE = stack_emu.cpp
 SOURCE_TEST = test.cpp
 
@@ -40,6 +55,8 @@ build/%.o: %.cpp $(INCLUDES)
 	@mkdir -p build/src
 	@mkdir -p build/stack
 	@mkdir -p build/test
+	@mkdir -p build/long_arithmetic/arithmetic
+	@mkdir -p build/long_arithmetic/fft
 	$(CC) -c $< $(CFLAGS) -o $@
 
 default: $(EXECUTABLE_SOURCE) $(EXECUTABLE_TEST)
