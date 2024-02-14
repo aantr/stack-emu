@@ -16,7 +16,7 @@ GREEN   = \033[1;35m
 BCYAN   = \033[1;36m
 RESET   = \033[0m
 
-# project dependencies
+# project dependencies	
 INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
