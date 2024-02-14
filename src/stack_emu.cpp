@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <map>
 
 using namespace stack_emu;
 using namespace arithmetic;
@@ -29,7 +30,33 @@ int main(int argc, char* argv[]) {
 	stack<LongDouble> st;
 	const size_t REG_SIZE = 32;
 	LongDouble reg[REG_SIZE] = {};
-	while (sin >> inp) {
+	char **commands = (char**) malloc(0);
+	size_t commands_size = 0;
+	map<string, size_t> labels;
+	bool was_label = false;
+	while (sin >> inp) { // compile
+		commands_size++;
+		commands = (char**) realloc(commands, commands_size * sizeof(char*));
+		char* command = (char*) malloc(inp.size() * sizeof(char));
+		memcpy(command, inp.data(), inp.size());
+		commands[commands_size - 1] = command;
+		if (was_label) {
+			if (labels.count(inp)) {
+				throw runtime_error("LABEL: Expected unique name");
+			}
+			labels[inp] = commands_size;
+			was_label = false;
+		} else if (inp == "LABEL") {
+			was_label = true;
+		}
+	}
+	if (was_label) {
+		throw runtime_error("LABEL: Expected input");
+	}
+
+	size_t current_command = 0;
+	while (current_command < commands_size) {
+		inp = commands[current_command++];
 		if (inp == "BEGIN") {
 			if (was_begin) {
 				throw runtime_error("Double BEGIN command");
@@ -43,9 +70,139 @@ int main(int argc, char* argv[]) {
 			break;
 		} else if (was_begin == false) {
 			throw runtime_error("Expected BEGIN before " + inp);
+		} else if (inp == "LABEL") {
+			if (current_command == commands_size) {
+				throw runtime_error("LABEL: Expected input");
+			}
+			inp = commands[current_command++];
+		} else if (inp == "JMP") {
+			if (current_command == commands_size) {
+				throw runtime_error("JMP: Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error("JMP: No such label: " + inp);
+			}
+			current_command = labels[inp];
+		} else if (inp == "JEQ") {
+			if (current_command == commands_size) {
+				throw runtime_error(inp + ": Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error(inp + ": No such label: " + inp);
+			}
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a == b;
+			if (statement) {
+				current_command = labels[inp];
+			}
+		} else if (inp == "JNE") {
+			if (current_command == commands_size) {
+				throw runtime_error(inp + ": Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error(inp + ": No such label: " + inp);
+			}
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a != b;
+			if (statement) {
+				current_command = labels[inp];
+			}
+		} else if (inp == "JA") {
+			if (current_command == commands_size) {
+				throw runtime_error(inp + ": Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error(inp + ": No such label: " + inp);
+			}
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a > b;
+			if (statement) {
+				current_command = labels[inp];
+			}
+		} else if (inp == "JAE") {
+			if (current_command == commands_size) {
+				throw runtime_error(inp + ": Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error(inp + ": No such label: " + inp);
+			}
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a >= b;
+			if (statement) {
+				current_command = labels[inp];
+			}
+		} else if (inp == "JB") {
+			if (current_command == commands_size) {
+				throw runtime_error(inp + ": Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error(inp + ": No such label: " + inp);
+			}
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a < b;
+			if (statement) {
+				current_command = labels[inp];
+			}
+		} else if (inp == "JBE") {
+			if (current_command == commands_size) {
+				throw runtime_error(inp + ": Expected input");
+			}
+			inp = commands[current_command++];
+			if (labels.count(inp) == 0) {
+				throw runtime_error(inp + ": No such label: " + inp);
+			}
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a <= b;
+			if (statement) {
+				current_command = labels[inp];
+			}
 		} else if (inp == "PUSH") {
-			string value;
-			sin >> value;
+			if (current_command == commands_size) {
+				throw runtime_error("PUSH: Expected input");
+			}
+			string value = commands[current_command++];
 			LongDouble v;
 			bool error = false;
 			try {
@@ -63,15 +220,19 @@ int main(int argc, char* argv[]) {
 			}
 			st.pop();
 		} else if (inp == "PUSHR") {
-			size_t r;
-			sin >> r;
+			if (current_command == commands_size) {
+				throw runtime_error("PUSHR: Expected input");
+			}
+			size_t r = atoi(commands[current_command++]);
 			if (r < 0 || r >= REG_SIZE) {
 				throw runtime_error("PUSHR: Register must be in [0, " + to_string(REG_SIZE) + "]");
 			}
 			st.push(reg[r]);
 		} else if (inp == "POPR") {
-			size_t r;
-			sin >> r;
+			if (current_command == commands_size) {
+				throw runtime_error("POPR: Expected input");
+			}
+			size_t r = atoi(commands[current_command++]);
 			if (r < 0 || r >= REG_SIZE) {
 				throw runtime_error("PUSHR: Register must be in [0, " + to_string(REG_SIZE) + "]");
 			}
@@ -149,10 +310,14 @@ int main(int argc, char* argv[]) {
 			}
 			st.push(v);
 		} else {
-			runtime_error("Unexpected command " + inp);
+			throw runtime_error("Unexpected command " + inp);
 		}
 	}
 	sin.close();
+	for (size_t i = 0; i < commands_size; i++) {
+		free(commands[i]);
+	}
+	free(commands);
 	if (was_begin) {
 		throw runtime_error("END command expected");
 	}
