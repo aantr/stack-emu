@@ -9,7 +9,11 @@ namespace stack_emu {
 	class stack {
 	private:
 		size_t sz;
+		size_t capacity;
 		T* data;
+
+		void reserve_(size_t);
+		void resize_();
 
 	public:
 		stack();

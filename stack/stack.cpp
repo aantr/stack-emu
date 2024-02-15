@@ -36,45 +36,80 @@ struct is_inequality_comparable<T,
 namespace stack_emu {
 
 	template <class T>
-	stack<T>::stack(): sz(0), data(nullptr) {
-		data = (T*) malloc(0);
+	void stack<T>::reserve_(size_t v) {
+		sz = v;
+		while (capacity < v) {
+			capacity <<= 1;
+			if (capacity == 0) {
+				capacity++;
+			}
+		}
+		while (capacity > 0 && (capacity >> 1) >= v) {
+			capacity >>= 1;
+		}
+		resize_();
+	}
+
+	template <class T>
+	void stack<T>::resize_() {
+		T* temp = new T[capacity];
+        for (size_t i = 0; i < sz; i++) {
+            temp[i] = data[i]; 
+        }
+        delete[] data;
+        data = temp;
+	}
+
+	template <class T>
+	stack<T>::stack(): sz(0) {
+		data = new T[0];
+		capacity = 0;
 	}
 
 	template <class T>
 	stack<T>::stack(unsigned int sz): sz(sz) {
-		data = (T*) malloc(sz * sizeof(T));
-		fill(data, data + sz, T());
+		data = new T[0];
+		capacity = 0;
+		reserve_(sz);
 	}
 
 	template <class T>
 	stack<T>::stack(unsigned int sz, const T& elem): sz(sz) {
-		data = (T*) malloc(sz * sizeof(T));
+		capacity = 0;
+		data = new T[0];
+		reserve_(sz);
 		fill(data, data + sz, elem);
 	}
 
 	template <class T>
-	stack<T>::stack(const stack &other) {
+	stack<T>::stack(const stack &other) { // copy
 		sz = other.sz;
-		data = (T*) malloc(sz * sizeof(T));
-		memcpy(data, other.data, sz * sizeof(T));
+		capacity = other.capacity;
+		data = new T[capacity];
+		for (size_t i = 0; i < capacity; i++) {
+			data[i] = other.data[i];
+		}
 	}
 
 	template <class T>
-	stack<T>& stack<T>::operator=(const stack &other) {
+	stack<T>& stack<T>::operator=(const stack &other) { // copy
 		if (&other == this) {
 			return *this;
 		}
-		free(data);
 		sz = other.sz;
-		data = (T*) malloc(sz * sizeof(T));
-		memcpy(data, other.data, sz * sizeof(T));
+		capacity = other.capacity;
+		data = new T[capacity];
+		for (size_t i = 0; i < capacity; i++) {
+			data[i] = other.data[i];
+		}
 		return *this;		
 	}
 
 	template <class T>
 	stack<T>::stack(stack &&other) noexcept {
-		data = exchange(other.data, nullptr);
+		data = exchange(other.data, new T[0]);
 		sz = exchange(other.sz, 0);
+		capacity = exchange(other.capacity, 0);
 	}
 
 	template <class T>
@@ -84,12 +119,13 @@ namespace stack_emu {
 		}
 		swap(data, other.data);
 		swap(sz, other.sz);
+		swap(capacity, other.capacity);
 		return *this;
 	}
 
 	template <class T>
 	stack<T>::~stack() {
-		free(data);
+		delete[] data;
 	}
 
 	template <class T>
@@ -107,20 +143,12 @@ namespace stack_emu {
 		if (sz == 0) {
 			throw runtime_error("Pop from empty stack");
 		}
-		sz--;
-		data = (T*) realloc(data, sz * sizeof(T));
-		if (!data) {
-			throw runtime_error("Realloc error in pop");
-		}
+		reserve_(sz - 1);
 	}
 
 	template <class T>
 	void stack<T>::push(const T& elem) {
-		sz++;
-		data = (T*) realloc(data, sz * sizeof(T));
-		if (!data) {
-			throw runtime_error("Realloc error in push");
-		}
+		reserve_(sz + 1);
 		data[sz - 1] = elem;
 	}
 
@@ -137,7 +165,6 @@ namespace stack_emu {
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = 0; i < sz; i++) {
-
 			if (!(data[i] == other.data[i])) {
 				return false;
 			}
