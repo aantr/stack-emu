@@ -64,6 +64,12 @@ TEST_ (Equality)
 	}
 	ASSERT(s == s1);
 
+	for (int i = 0; i < 5; i++) {
+		cout << s.top() << " " << s1.top() << "  ";
+		s.pop();
+		s1.pop();
+	} cout << endl;
+
 
 _TEST
 
