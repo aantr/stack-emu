@@ -37,48 +37,62 @@ namespace stack_emu {
 
 	template <class T>
 	void stack<T>::reserve_(size_t v) {
-		sz = v;
+		bool was = false;
 		while (capacity < v) {
 			capacity <<= 1;
 			if (capacity == 0) {
 				capacity++;
 			}
+			was = true;
 		}
 		while (capacity > 0 && (capacity >> 1) >= v) {
 			capacity >>= 1;
+			was = true;
 		}
-		resize_();
+		if (was) {
+			resize_(v);
+		}
+		sz = v;
 	}
 
 	template <class T>
-	void stack<T>::resize_() {
+	void stack<T>::resize_(size_t v) {
 		T* temp = new T[capacity];
-        for (size_t i = 0; i < sz; i++) {
-            temp[i] = data[i]; 
+		size_t j = min(sz, capacity);
+        for (size_t i = 0; i < j; i++) {
+            temp[i] = data[i];
+        }
+        for (size_t i = j; i < capacity; i++) {
+            temp[i] = T();
         }
         delete[] data;
         data = temp;
 	}
 
 	template <class T>
-	stack<T>::stack(): sz(0) {
+	stack<T>::stack() {
+		sz = 0;
 		data = new T[0];
 		capacity = 0;
 	}
 
 	template <class T>
-	stack<T>::stack(unsigned int sz): sz(sz) {
+	stack<T>::stack(unsigned int sz_) {
+		sz = 0;
 		data = new T[0];
 		capacity = 0;
-		reserve_(sz);
+		reserve_(sz_);
 	}
 
 	template <class T>
-	stack<T>::stack(unsigned int sz, const T& elem): sz(sz) {
+	stack<T>::stack(unsigned int sz_, const T& elem) {
+		sz = 0;
 		capacity = 0;
 		data = new T[0];
-		reserve_(sz);
-		fill(data, data + sz, elem);
+		reserve_(sz_);
+		for (size_t i = 0; i < sz_; i++) {
+			data[i] = elem;
+		}
 	}
 
 	template <class T>
@@ -107,7 +121,8 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::stack(stack &&other) noexcept {
-		data = exchange(other.data, new T[0]);
+		// delete[] data;
+		data = exchange(other.data, nullptr);
 		sz = exchange(other.sz, 0);
 		capacity = exchange(other.capacity, 0);
 	}
@@ -117,9 +132,10 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		swap(data, other.data);
-		swap(sz, other.sz);
-		swap(capacity, other.capacity);
+		delete[] data;
+		data = exchange(other.data, nullptr);
+		sz = exchange(other.sz, 0);
+		capacity = exchange(other.capacity, 0);
 		return *this;
 	}
 
