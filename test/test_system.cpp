@@ -22,10 +22,6 @@ namespace test_system {
 				os << RED + "failed" + RESET + ", expression: (" << str << ")\n";
 				os.flush();
 				failed++;
-			} catch (exception exc) {
-				os << RED + "failed" + RESET + ", error: (" << exc.what() << ")\n";
-				os.flush();
-				failed++;
 			}
 		}
 		if (failed) {
