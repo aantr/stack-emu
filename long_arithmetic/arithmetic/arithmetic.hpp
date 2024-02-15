@@ -42,8 +42,28 @@ namespace arithmetic {
     using digit = int32_t;
 
     class LongDouble {
-    public:
+    private:
+        int sign;
+        digit* digits; 
+        int digits_size;
+        int exponent; // base 10
+        int precision; // >= MIN_PRECISION
 
+        void removeZeroes(); 
+        void removeFirst(int value);
+
+        template<class T>
+        static void init_from_string(LongDouble&, const T&);
+        template<class T>
+        static void init_from_int(LongDouble&, const T&);
+        template<class T>
+        static void init_from_double(LongDouble&, const T&);
+
+        static void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
+        static void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
+        static void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r);
+
+    public:
         
         static bool use_scientific_output;
         static bool output_insignificant_zeroes;
@@ -53,35 +73,32 @@ namespace arithmetic {
         static bool context_remove_left_zeroes;
         static int default_precision;
 
-        int sign;
-        digit* digits; 
-        int digits_size;
-        int precision; // >= MIN_PRECISION
-        int exponent; // base 10
-
         LongDouble(); 
         LongDouble(const LongDouble& x); 
-        LongDouble(const LongDouble& x, int precision); 
+        LongDouble(const LongDouble& x, int p); 
         LongDouble(const char *value); 
-        LongDouble(const char *value, int precision);
+        LongDouble(const char *value, int p);
         LongDouble(const string &value); 
-        LongDouble(const string &value, int precision);
+        LongDouble(const string &value, int p);
         LongDouble(const int32_t &value);
-        LongDouble(const int32_t &value, int precision); 
+        LongDouble(const int32_t &value, int p); 
         LongDouble(const int64_t &value);
-        LongDouble(const int64_t &value, int precision); 
+        LongDouble(const int64_t &value, int p); 
         LongDouble(const uint64_t &value); 
-        LongDouble(const uint64_t &value, int precision);
+        LongDouble(const uint64_t &value, int p);
         LongDouble(const double &value); 
-        LongDouble(const double &value, int precision); 
+        LongDouble(const double &value, int p); 
         LongDouble(const long double &value); 
-        LongDouble(const long double &value, int precision); 
+        LongDouble(const long double &value, int p); 
+
+        void set_precision(int); 
+        int get_precision() const; 
+        int get_sign() const;
+        int get_digits_size() const;
 
         bool isInt() const; 
         bool isZero() const; 
         bool isPower() const; 
-        void removeZeroes(); 
-        void removeFirst(int value);
         void mulBase(int power);
         void divBase(int power);
         void round(int number);
@@ -111,19 +128,14 @@ namespace arithmetic {
         bool operator!=(const LongDouble& x) const;
         LongDouble& operator=(const LongDouble& x);
         
+        // LongDouble(LongDouble &&other) noexcept; // move
+        // LongDouble& operator=(LongDouble &&other) noexcept; // move
         ~LongDouble();
 
+        friend istream& operator>>(istream& os, LongDouble&);
+        friend ostream& operator<<(ostream& os, const LongDouble&);
+
     };
-
-    istream& operator>>(istream& os, LongDouble& value);
-
-    ostream& operator<<(ostream& os, const LongDouble& value);
-
-    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem);
-
-    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res);
-
-    void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r);
 
     LongDouble operator""_ld (const char* x, unsigned long size);
 

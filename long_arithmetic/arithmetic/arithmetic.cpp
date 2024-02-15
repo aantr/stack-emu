@@ -7,7 +7,9 @@
 #include <exception>
 #include <arithmetic.hpp>
 #include <fft.hpp>
+#include <defines.hpp>
 #include <math.h>
+#include <climits>
 
 namespace arithmetic {
 
@@ -56,6 +58,19 @@ namespace arithmetic {
         throw NegativePowerError();
     }
 
+    // LongDouble::LongDouble(LongDouble &&other) noexcept { // move;
+    //     if (this == &other) {
+    //         return;
+    //     }
+    //     swap(sign, other.sign);
+    //     free(digits);
+    //     digits = nullptr;
+    //     swap(digits, other.digits);
+    //     swap(digits_size, other.digits_size);
+    //     swap(precision, other.precision);
+    //     swap(exponent, other.exponent);
+    // }
+
     LongDouble::~LongDouble() {
         free(digits);
     }
@@ -70,17 +85,17 @@ namespace arithmetic {
         *this = x;
     }
 
-    LongDouble::LongDouble(const LongDouble& other, int precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const LongDouble& other, int p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
         digits = (digit*) malloc(0);
         *this = other;
-        this->precision = precision;
+        this->precision = p;
     }
 
     template<class T>
-    void init_from_string(LongDouble& res, const T& value) {
+    void LongDouble::init_from_string(LongDouble& res, const T& value) {
         int size = strlen(value);
         if (size == 0) {
             res = 0;
@@ -132,7 +147,7 @@ namespace arithmetic {
     }
 
     template<class T>
-    void init_from_int(LongDouble& res, T value) {
+    void LongDouble::init_from_int(LongDouble& res, const T& value) {
         T x = value;
         res.sign = 1;
         if (x < 0) res.sign = -1, x = -x;
@@ -152,22 +167,22 @@ namespace arithmetic {
     }
 
     template<class T>
-    void init_from_double(LongDouble& res, T& v) {
+    void LongDouble::init_from_double(LongDouble& res, const T& v) {
         stringstream ss;
         ss << fixed << v;
-        init_from_string(res, ss.str().c_str());
+        LongDouble::init_from_string(res, ss.str().c_str());
     }
 
     LongDouble::LongDouble(const char* value) {
-        init_from_string(*this, value);
+        LongDouble::init_from_string(*this, value);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const char* value, int precision): precision(precision) {
+    LongDouble::LongDouble(const char* value, int p): precision(p) {
         if (precision < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_string(*this, value);
+        LongDouble::init_from_string(*this, value);
     }
 
     LongDouble::LongDouble(const string& value) {
@@ -175,71 +190,90 @@ namespace arithmetic {
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const string& value, int precision): precision(precision) {
+    LongDouble::LongDouble(const string& value, int p): precision(p) {
         if (precision < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_string(*this, value.c_str());
+        LongDouble::init_from_string(*this, value.c_str());
     }
 
     LongDouble::LongDouble(const int32_t &v) {
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const int32_t &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const int32_t &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
     }
 
     LongDouble::LongDouble(const int64_t &v) {
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const int64_t &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const int64_t &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
     }
 
     LongDouble::LongDouble(const uint64_t &v) {
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const uint64_t &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const uint64_t &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_int(*this, v);
+        LongDouble::init_from_int(*this, v);
     }
 
     LongDouble::LongDouble(const double &v) {
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const double &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const double &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
     }
 
     LongDouble::LongDouble(const long double &v) {
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
         precision = default_precision;
     }
 
-    LongDouble::LongDouble(const long double &v, int precision): precision(precision) {
-        if (precision < MIN_PRECISION) {
+    LongDouble::LongDouble(const long double &v, int p): precision(p) {
+        if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        init_from_double(*this, v);
+        LongDouble::init_from_double(*this, v);
+    }
+
+    void LongDouble::set_precision(int v) {
+        if (v < MIN_PRECISION) {
+            init_precison_error();
+        }
+        precision = v;
+    } 
+
+    int LongDouble::get_precision() const {
+        return precision;
+    }
+
+    int LongDouble::get_sign() const {
+        return sign;
+    }
+
+    int LongDouble::get_digits_size() const {
+        return digits_size;
     }
 
     LongDouble LongDouble::abs() const {
@@ -464,7 +498,7 @@ namespace arithmetic {
         }
     }
 
-    void div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
+    void LongDouble::div21(const LongDouble &a, const LongDouble &b, int n, LongDouble &res) {
 
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
         assert(a.isZero() || a.digits[a.digits_size - 1] != 0);
@@ -554,7 +588,7 @@ namespace arithmetic {
 
     }
 
-    void div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
+    void LongDouble::div32(const LongDouble &a, const LongDouble &b, int n, LongDouble &res, LongDouble& rem) {
 
 
         assert(a.exponent == 0 && b.exponent == 0 && a.sign == 1 && b.sign == 1);
@@ -580,8 +614,8 @@ namespace arithmetic {
             if (B == 0) {
                 division_error();
             }
-            res = LongDouble((long long) (A / B), INT_MAX);
-            rem = LongDouble((long long) (A % B), INT_MAX);
+            res = LongDouble((uint64_t) (A / B), INT_MAX);
+            rem = LongDouble((uint64_t) (A % B), INT_MAX);
 
             assert(rem.exponent % rem.base_exp == 0);
             int d = rem.exponent / rem.base_exp;
@@ -698,9 +732,9 @@ namespace arithmetic {
 
         // cout << current_rem.digits_size << " " << endl;
 
-        int q;
+        uint64_t q;
 
-        long long A = 0, B = 0;
+        uint64_t A = 0, B = 0;
         if (current_rem.digits_size < y.digits_size || current_rem >= 0) {
             q = 0;
         } else {
@@ -724,12 +758,12 @@ namespace arithmetic {
         // q = rightq;
 
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && abs(q - A / B) <= 1);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && std::abs((long long) (q - A / B)) <= 1);
 
         current_rem += y * q;
         res1 -= q;  
 
-        assert(q <= LongDouble::base);
+        assert(q <= (uint64_t) LongDouble::base);
 
         while (current_rem < 0) {
             res1 -= 1;
@@ -768,7 +802,7 @@ namespace arithmetic {
 
     }
 
-    void sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
+    void LongDouble::sqrt_rem(const LongDouble n, LongDouble &s, LongDouble &r) {
         if (!(n.isInt() && n >= 1)) {
             sqrt_int_limit_error();
         }
@@ -806,7 +840,7 @@ namespace arithmetic {
             digits_size_10--;
         }
 
-        int power = floor((double) (digits_size_10 + n.exponent - 1) * log2(10)) + 1;
+        int power = std::floor((double) (digits_size_10 + n.exponent - 1) * log2(10)) + 1;
         // int power_max = floor((double) (n.digits_size + n.exponent) * log2(10));        
         LongDouble two(2, current_precison);
         two.pow(power);

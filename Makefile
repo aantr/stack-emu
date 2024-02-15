@@ -20,7 +20,10 @@ RESET   = \033[0m
 INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
-			test/test_system.hpp
+			stack/stack.cpp \
+			test/test.cpp \
+			test/test_system.hpp \
+			common
 
 
 CFLAGS += -I $(abspath include) \
@@ -28,6 +31,7 @@ CFLAGS += -I $(abspath include) \
 		-I $(abspath test) \
 		-I $(abspath long_arithmetic/arithmetic) \
 		-I $(abspath long_arithmetic/fft) \
+		-I $(abspath common)
 
 # what needs to be compiled
 SOURCES = \

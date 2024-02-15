@@ -349,10 +349,10 @@ void emulate(const char* filename) {
 			if (b.isZero()) {
 				throw runtime_error("DIV: Division by zero");
 			}
-			a.precision = a.digits_size + a.exponent;
+			a.set_precision(a.get_digits_size() + a.get_exponent());
 			auto res = a / b;
-			a.precision = INT_MAX;
-			res.precision = INT_MAX;
+			a.set_precision(INT_MAX);
+			res.set_precision(INT_MAX);
 			res.floor();
 			st.push(res);
 		} else if (inp == "OUT") {

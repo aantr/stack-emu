@@ -74,7 +74,7 @@ TEST_ (FiveRule)
 	stack<int> s1(5); // 5 zeroes
 	stack<int> s2(5, 5); // 5 fives
 	
-	stack<int> s3(s2); // copy
+	stack<int> s3 = s2; // copy
 
 	ASSERT(s3 == s2);
 

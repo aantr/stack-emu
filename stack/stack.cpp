@@ -34,7 +34,7 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::stack(): sz(0), data(nullptr) {
-
+		data = (T*) malloc(0);
 	}
 
 	template <class T>
@@ -51,10 +51,8 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::stack(const stack &other) {
-		if (&other == this) {
-			return;
-		}
-		free(data);
+		cout << "cp1" << endl;
+
 		sz = other.sz;
 		data = (T*) malloc(sz * sizeof(T));
 		memcpy(data, other.data, sz * sizeof(T));
@@ -65,23 +63,20 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
+		cout << "cp2" << endl;
+
 		free(data);
 		sz = other.sz;
 		data = (T*) malloc(sz * sizeof(T));
 		memcpy(data, other.data, sz * sizeof(T));
-		return *this;
+		return *this;		
 	}
 
 	template <class T>
 	stack<T>::stack(stack &&other) noexcept {
-		if (&other == this) {
-			return;
-		}
-		free(data);
-		data = nullptr;
-		sz = 0;
-		swap(data, other.data);
-		swap(sz, other.sz);
+		cout << "move1" << endl;
+		data = exchange(other.data, nullptr);
+		sz = exchange(other.sz, 0);
 	}
 
 	template <class T>
@@ -89,9 +84,7 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		free(data);
-		data = nullptr;
-		sz = 0;
+		cout << "move2" << endl;
 		swap(data, other.data);
 		swap(sz, other.sz);
 		return *this;

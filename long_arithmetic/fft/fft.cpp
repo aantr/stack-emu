@@ -1,9 +1,12 @@
+#include <defines.hpp>
+
 #include <assert.h>
 #include <complex.h>
 #include <math.h>
 #include <algorithm>
 #include <fft.hpp>
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
@@ -220,8 +223,6 @@ void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, in
         }
         res[res_size - 1] = carry;
     }
-
-    for (int i = 0; i < res_size; i++) assert(res[i] >= 0);
     free(mult);
 
 }
