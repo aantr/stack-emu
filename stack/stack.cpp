@@ -1,6 +1,7 @@
 #include <stack.hpp>
 #include <type_traits>
 #include <assert.h>
+#include <utility>
 
 // https://stackoverflow.com/questions/16399346/c11-static-assert-for-equality-comparable-type
 template<typename T, typename = void>
