@@ -7,6 +7,7 @@
 #include <map>
 #include <climits>
 #include <cstring>
+#include <vector>
 
 using namespace stack_emu;
 using namespace arithmetic;

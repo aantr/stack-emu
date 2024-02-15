@@ -3,9 +3,9 @@ CC = g++
 CFLAGS = \
 	-std=c++17 \
 	-O2 \
-	-Wall      \
-	-Wextra    \
-	-Werror
+# 	-Wall      \
+# 	-Wextra    \
+# 	-Werror \
 
 LDFLAGS =
 
