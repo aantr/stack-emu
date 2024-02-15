@@ -62,13 +62,11 @@ namespace arithmetic {
     //     if (this == &other) {
     //         return;
     //     }
-    //     swap(sign, other.sign);
-    //     free(digits);
-    //     digits = nullptr;
-    //     swap(digits, other.digits);
-    //     swap(digits_size, other.digits_size);
-    //     swap(precision, other.precision);
-    //     swap(exponent, other.exponent);
+    //     sign = exchange(other.sign, 1);
+    //     digits = exchange(digits, nullptr);
+    //     digits_size = exchange(digits_size, 0);
+    //     precision = exchange(precision, default_precision);
+    //     exponent = exchange(exponent, 0);
     // }
 
     LongDouble::~LongDouble() {
@@ -77,21 +75,37 @@ namespace arithmetic {
 
     LongDouble::LongDouble() {
         digits = (digit*) malloc(0);
-        *this = 0;
+        sign = 1;
+        digits_size = 0;
+        exponent = 0;
+        precision = default_precision;
     }
 
     LongDouble::LongDouble(const LongDouble& x) {
         digits = (digit*) malloc(0);
-        *this = x;
+        sign = x.sign;
+        digits_size = x.digits_size;
+        digits = (digit*) malloc(x.digits_size * sizeof(digit));
+        if (!digits) memory_error();
+        memcpy(digits, x.digits, x.digits_size * sizeof(digit));
+        assert(digits != x.digits);
+        precision = x.precision;
+        exponent = x.exponent;
     }
 
-    LongDouble::LongDouble(const LongDouble& other, int p) {
+    LongDouble::LongDouble(const LongDouble& x, int p) {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
         digits = (digit*) malloc(0);
-        *this = other;
-        this->precision = p;
+        sign = x.sign;
+        digits_size = x.digits_size;
+        digits = (digit*) malloc(x.digits_size * sizeof(digit));
+        if (!digits) memory_error();
+        memcpy(digits, x.digits, x.digits_size * sizeof(digit));
+        assert(digits != x.digits);
+        exponent = x.exponent;
+        precision = p;
     }
 
     template<class T>
@@ -274,6 +288,10 @@ namespace arithmetic {
 
     int LongDouble::get_digits_size() const {
         return digits_size;
+    }
+
+    int LongDouble::get_exponent() const {
+        return exponent;
     }
 
     LongDouble LongDouble::abs() const {
@@ -758,7 +776,7 @@ namespace arithmetic {
         // q = rightq;
 
         assert(q == 0 || current_rem.digits_size < y.digits_size || current_rem.digits_size - y.digits_size == 0);
-        assert(q == 0 || current_rem.digits_size < y.digits_size || q >= A / B && std::abs((long long) (q - A / B)) <= 1);
+        assert(q == 0 || current_rem.digits_size < y.digits_size || (q >= A / B && std::abs((long long) (q - A / B)) <= 1));
 
         current_rem += y * q;
         res1 -= q;  

@@ -1,5 +1,6 @@
 #include <stack.hpp>
 #include <type_traits>
+#include <assert.h>
 
 // https://stackoverflow.com/questions/16399346/c11-static-assert-for-equality-comparable-type
 template<typename T, typename = void>
@@ -51,8 +52,6 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::stack(const stack &other) {
-		cout << "cp1" << endl;
-
 		sz = other.sz;
 		data = (T*) malloc(sz * sizeof(T));
 		memcpy(data, other.data, sz * sizeof(T));
@@ -63,8 +62,6 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		cout << "cp2" << endl;
-
 		free(data);
 		sz = other.sz;
 		data = (T*) malloc(sz * sizeof(T));
@@ -74,7 +71,6 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::stack(stack &&other) noexcept {
-		cout << "move1" << endl;
 		data = exchange(other.data, nullptr);
 		sz = exchange(other.sz, 0);
 	}
@@ -84,7 +80,6 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		cout << "move2" << endl;
 		swap(data, other.data);
 		swap(sz, other.sz);
 		return *this;
