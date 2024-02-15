@@ -5,6 +5,8 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include <climits>
+#include <cstring>
 
 using namespace stack_emu;
 using namespace arithmetic;
@@ -273,7 +275,7 @@ void emulate(const char* filename) {
 			bool error = false;
 			try {
 				v = value;
-			} catch (InitStringError e) {
+			} catch (const InitStringError &e) {
 				error = true;
 			}
 			if (error || !v.isInt()) {
@@ -290,7 +292,7 @@ void emulate(const char* filename) {
 				throw runtime_error("PUSHR: Expected input");
 			}
 			size_t r = atoi(commands[current_command++]);
-			if (r < 0 || r >= REG_SIZE) {
+			if (r >= REG_SIZE) {
 				throw runtime_error("PUSHR: Register must be in [0, " + to_string(REG_SIZE) + "]");
 			}
 			st.push(reg[r]);
@@ -299,7 +301,7 @@ void emulate(const char* filename) {
 				throw runtime_error("POPR: Expected input");
 			}
 			size_t r = atoi(commands[current_command++]);
-			if (r < 0 || r >= REG_SIZE) {
+			if (r >= REG_SIZE) {
 				throw runtime_error("PUSHR: Register must be in [0, " + to_string(REG_SIZE) + "]");
 			}
 			if (st.size() == 0) {
@@ -368,7 +370,7 @@ void emulate(const char* filename) {
 			bool error = false;
 			try {
 				v = value;
-			} catch (InitStringError e) {
+			} catch (const InitStringError &e) {
 				error = true;
 			}
 			if (error || !v.isInt()) {
