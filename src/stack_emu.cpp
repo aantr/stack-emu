@@ -32,7 +32,6 @@ void compile(const char* filename) {
 	map<string, size_t> labels;
 	bool was_label = false;
 	while (stream >> inp) { // compile
-		cout << "'" << inp << "'" << endl;
 		commands_size++;
 		commands = (char**) realloc(commands, commands_size * sizeof(char*));
 		char* command = (char*) malloc((inp.size() + 1) * sizeof(char));
@@ -60,6 +59,8 @@ void compile(const char* filename) {
 	}
 	for (size_t i = 0; i < commands_size; i++) {
 		size_t len = strlen(commands[i]);
+		cout << commands[i] << endl;
+
 		for (size_t j = 0; j < len; j++) {
 			commands[i][j] ^= XOR[0];
 		}
@@ -67,6 +68,7 @@ void compile(const char* filename) {
 		if (i + 1 < commands_size) {
 			char what_write[1];
 			what_write[0] = (char) (DELIMITER[0] ^ XOR[0]);
+			cout << DELIMITER[0] << endl;
 			out.write(what_write, 1 * sizeof(char));
 		}
 	}
@@ -91,6 +93,7 @@ void emulate(const char* filename) {
 
 	while (stream.read(read, 1), stream) {
 		read[0] ^= XOR[0];
+		cout << read[0] << endl;
 		if (read[0] == DELIMITER[0]) {
 			current_size++;
 			commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
@@ -132,7 +135,6 @@ void emulate(const char* filename) {
 	size_t current_command = 0;
 	while (current_command < commands_size) {
 		inp = commands[current_command++];
-		cout << "'" << inp << "'" << endl;
 		if (inp == "BEGIN") {
 			if (was_begin) {
 				throw runtime_error("Double BEGIN command");
