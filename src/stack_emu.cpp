@@ -406,7 +406,7 @@ void emulate(const char* filename) {
 		throw runtime_error("END command expected");
 	}
 }
-
+// https://stackoverflow.com/questions/3840582/still-reachable-leak-detected-by-valgrind
 int main(int argc, char* argv[]) {
 
 	if (argc != 3 || !(argv[1] == string("compile") || argv[1] == string("emulate"))) {
