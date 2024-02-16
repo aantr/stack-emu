@@ -82,7 +82,6 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(const LongDouble& x) {
-        digits = (digit*) malloc(0);
         sign = x.sign;
         digits_size = x.digits_size;
         digits = (digit*) malloc(x.digits_size * sizeof(digit));
@@ -97,7 +96,6 @@ namespace arithmetic {
         if (p < MIN_PRECISION) {
             init_precison_error();
         }
-        digits = (digit*) malloc(0);
         sign = x.sign;
         digits_size = x.digits_size;
         digits = (digit*) malloc(x.digits_size * sizeof(digit));
