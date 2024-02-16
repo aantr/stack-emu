@@ -94,7 +94,7 @@ void fft(num*& a, int& a_size, int n = -1) {
     }
 }
 
-num *fa = new num[0], *fb = new num[0];
+num *fa = (num*) malloc(0), *fb =(num*) malloc(0);
 int fa_size = 0, fb_size = 0;
 
 void square(uint32_t*& a, int& a_size, uint64_t*& res, int& res_size) {
