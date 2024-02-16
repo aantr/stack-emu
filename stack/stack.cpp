@@ -45,7 +45,7 @@ namespace stack_emu {
 			}
 			was = true;
 		}
-		while (capacity > 0 && (capacity >> 1) >= v) {
+		while (capacity > 0 && (capacity >> 2) >= v) {
 			capacity >>= 1;
 			was = true;
 		}
