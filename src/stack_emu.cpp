@@ -13,8 +13,8 @@ using namespace stack_emu;
 using namespace arithmetic;
 using namespace std;
 
-const char* DELIMITER = "%\0";
-const char* XOR = "W\0";
+const string DELIMITER = "%";
+const string XOR = "W";
 
 void compile(const char* filename) {
 	ifstream stream;
@@ -411,12 +411,11 @@ int main(int argc, char* argv[]) {
 
 	if (argc != 3 || !(argv[1] == string("compile") || argv[1] == string("emulate"))) {
 		cout << "Usage: {executable} {compile|emulate} {path_to_file}" << endl;
-		return 0;
-	}
-	if (argv[1] == string("compile")) {
+	} else if (argv[1] == string("compile")) {
 		compile(argv[2]);
 	} else {
 		emulate(argv[2]);
 	}
- 
+	return 0;
+
 }
