@@ -59,8 +59,6 @@ void compile(const char* filename) {
 	}
 	for (size_t i = 0; i < commands_size; i++) {
 		size_t len = strlen(commands[i]);
-		cout << commands[i] << endl;
-
 		for (size_t j = 0; j < len; j++) {
 			commands[i][j] ^= XOR[0];
 		}
@@ -68,7 +66,6 @@ void compile(const char* filename) {
 		if (i + 1 < commands_size) {
 			char what_write[1];
 			what_write[0] = (char) (DELIMITER[0] ^ XOR[0]);
-			cout << DELIMITER[0] << endl;
 			out.write(what_write, 1 * sizeof(char));
 		}
 	}
@@ -93,7 +90,6 @@ void emulate(const char* filename) {
 
 	while (stream.read(read, 1), stream) {
 		read[0] ^= XOR[0];
-		cout << read[0] << endl;
 		if (read[0] == DELIMITER[0]) {
 			current_size++;
 			commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
@@ -109,6 +105,9 @@ void emulate(const char* filename) {
 			commands[commands_size - 1][current_size - 1] = read[0];
 		}
 	}
+	current_size++;
+	commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
+	commands[commands_size - 1][current_size - 1] = '\0';
 	stream.close();
 	if (current_size == 0 && commands_size == 1) {
 		commands_size--;
