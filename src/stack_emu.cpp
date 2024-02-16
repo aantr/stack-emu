@@ -32,6 +32,7 @@ void compile(const char* filename) {
 	map<string, size_t> labels;
 	bool was_label = false;
 	while (stream >> inp) { // compile
+		cout << "'" << inp << "'" << endl;
 		commands_size++;
 		commands = (char**) realloc(commands, commands_size * sizeof(char*));
 		char* command = (char*) malloc(inp.size() * sizeof(char));
