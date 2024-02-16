@@ -100,9 +100,7 @@ namespace stack_emu {
 		sz = other.sz;
 		capacity = other.capacity;
 		data = new T[capacity];
-		for (size_t i = 0; i < capacity; i++) {
-			data[i] = other.data[i];
-		}
+		std::copy(other.data, other.data + capacity, data);
 	}
 
 	template <class T>
@@ -110,18 +108,16 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
+		delete[] data;
 		sz = other.sz;
 		capacity = other.capacity;
 		data = new T[capacity];
-		for (size_t i = 0; i < capacity; i++) {
-			data[i] = other.data[i];
-		}
+		std::copy(other.data, other.data + capacity, data);
 		return *this;		
 	}
 
 	template <class T>
 	stack<T>::stack(stack &&other) noexcept {
-		// delete[] data;
 		data = exchange(other.data, nullptr);
 		sz = exchange(other.sz, 0);
 		capacity = exchange(other.capacity, 0);
