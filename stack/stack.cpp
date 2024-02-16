@@ -22,13 +22,13 @@ namespace stack_emu {
 			was = true;
 		}
 		if (was) {
-			resize_(v);
+			resize_();
 		}
 		sz = v;
 	}
 
 	template <class T>
-	void stack<T>::resize_(size_t v) {
+	void stack<T>::resize_() {
 		T* temp = new T[capacity];
 		size_t j = min(sz, capacity);
         for (size_t i = 0; i < j; i++) {

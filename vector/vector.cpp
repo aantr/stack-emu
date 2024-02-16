@@ -21,13 +21,13 @@ namespace stack_emu {
 			was = true;
 		}
 		if (was) {
-			resize_(v);
+			resize_();
 		}
 		sz = v;
 	}
 
 	template <class T>
-	void vector<T>::resize_(size_t v) {
+	void vector<T>::resize_() {
 		T* temp = new T[capacity];
 		size_t j = min(sz, capacity);
         for (size_t i = 0; i < j; i++) {
@@ -119,6 +119,24 @@ namespace stack_emu {
 	template <class T>
 	size_t vector<T>::size() const {
 		return sz;
+	}
+
+	template <class T>
+	void vector<T>::resize(size_t v) {
+		auto prev_sz = sz;
+		reserve_(v);
+		for (auto i = prev_sz; i < sz; i++) {
+			data[i] = T();
+		}
+	}
+
+	template <class T>
+	void vector<T>::resize(size_t v, const T& el) {
+		auto prev_sz = sz;
+		reserve_(v);
+		for (auto i = prev_sz; i < sz; i++) {
+			data[i] = el;
+		}
 	}
 
 	template <class T>

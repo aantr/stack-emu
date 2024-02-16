@@ -7,13 +7,13 @@ namespace stack_emu {
 
 	template<class T>
 	class vector {
-	public:
+	private:
 		size_t sz;
 		size_t capacity;
 		T* data;
 
 		void reserve_(size_t);
-		void resize_(size_t);
+		void resize_();
 
 	public:
 		vector();
@@ -28,6 +28,8 @@ namespace stack_emu {
 		~vector();
 
 		size_t size() const;
+		void resize(size_t);
+		void resize(size_t, const T&);
 		bool empty() const;
 		void pop_back();
 		void push_back(const T&);

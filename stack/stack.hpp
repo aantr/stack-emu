@@ -7,13 +7,13 @@ namespace stack_emu {
 
 	template<class T>
 	class stack {
-	public:
+	private:
 		size_t sz;
 		size_t capacity;
 		T* data;
 
 		void reserve_(size_t);
-		void resize_(size_t);
+		void resize_();
 
 	public:
 		stack();

@@ -2,6 +2,7 @@
 #include <test_system.hpp>
 #include <stack.cpp>
 #include <vector.cpp>
+#include <deque.cpp>
 
 // using namespace std;
 using namespace stack_emu;
@@ -74,7 +75,6 @@ TEST_ (Equality)
 	for (int i = 0; i < 5; i++) {
 		s.push(0);
 	}
-	s1 = s1;
 	for (int i = 0; i < 5; i++) {
 		s.pop();
 		s1.pop();
@@ -95,7 +95,6 @@ TEST_ (FiveRule)
 	stack<int> s2(5, 5); // 5 fives
 	stack<int> s3 = s2; // copy
 	ASSERT(s3 == s2);
-	s3 = s3;
 
 	stack<int> s4{std::move(s3)};
 	ASSERT(s4 == s2); // move
@@ -118,7 +117,6 @@ TEST_ (VectorFiveRule)
 	stack_emu::vector<int> s3 = s2; // copy
 
 	ASSERT(s3 == s2);
-	s3 = s3;
 
 	stack_emu::vector<int> s4{std::move(s3)};
 	ASSERT(s4 == s2); // move
@@ -129,7 +127,46 @@ TEST_ (VectorFiveRule)
 
 _TEST
 
+
+TEST_ (deque)
+
+	deque<int> s; // empty
+	deque<int> s1(5); // 5 zeroes
+	deque<int> s2(5, 5); // 5 fives
+	for (int i = 0; i < 5; i++) {
+		s2[i]--;
+		ASSERT(s2[i] == 4);
+	}
+	deque<int> s3 = s2; // copy
+
+	ASSERT(s3 == s2);
+
+	deque<int> s4{std::move(s3)};
+	ASSERT(s4 == s2); // move
+	ASSERT(s2 != s3); // move effect
+
+	s3 = s2; // copy
+	ASSERT(s3 == s2);
+
+	s1.resize(0);
+	ASSERT(s1.size() == 0);
+	
+	for (int i = 0; i < 1000000; i++) {
+		s1.push_back(1);
+		s1.push_front(2);
+	}
+	for (int i = 0; i < 500000; i++) {
+		s1.pop_back();
+		s1.pop_front();
+	}
+
+
+
+
+_TEST
+
 }
+
 
 
 int main() {

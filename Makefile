@@ -3,9 +3,9 @@ CC = g++
 CFLAGS = \
 	-std=c++17 \
 	-O2 \
-# 	-Wall      \
-# 	-Wextra    \
-# 	-Werror \
+	-Wall      \
+	-Wextra    \
+	-Werror \
 
 LDFLAGS =
 
@@ -23,6 +23,8 @@ INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 			stack/stack.cpp \
 			vector/vector.hpp \
 			vector/vector.cpp \
+			deque/deque.hpp \
+			deque/deque.cpp \
 			test/test.cpp \
 			test/test_system.hpp \
 			common
@@ -31,6 +33,7 @@ INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
 		-I $(abspath vector)  \
+		-I $(abspath deque)  \
 		-I $(abspath test) \
 		-I $(abspath long_arithmetic/arithmetic) \
 		-I $(abspath long_arithmetic/fft) \
@@ -40,6 +43,7 @@ CFLAGS += -I $(abspath include) \
 SOURCES = \
 	stack/stack.cpp \
 	vector/vector.cpp \
+	deque/deque.cpp \
 	test/test_system.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
@@ -63,6 +67,7 @@ build/%.o: %.cpp $(INCLUDES)
 	@mkdir -p build/src
 	@mkdir -p build/stack
 	@mkdir -p build/vector
+	@mkdir -p build/deque
 	@mkdir -p build/test
 	@mkdir -p build/long_arithmetic/arithmetic
 	@mkdir -p build/long_arithmetic/fft
