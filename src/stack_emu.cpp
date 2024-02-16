@@ -13,8 +13,8 @@ using namespace stack_emu;
 using namespace arithmetic;
 using namespace std;
 
-const char* DELIMITER = "%";
-const char* XOR = "#";
+const char* DELIMITER = " ";
+const char* XOR = "\0";
 
 void compile(const char* filename) {
 	ifstream stream;
