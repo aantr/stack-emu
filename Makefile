@@ -21,6 +21,8 @@ INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
 			stack/stack.cpp \
+			vector/vector.hpp \
+			vector/vector.cpp \
 			test/test.cpp \
 			test/test_system.hpp \
 			common
@@ -28,6 +30,7 @@ INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
+		-I $(abspath vector)  \
 		-I $(abspath test) \
 		-I $(abspath long_arithmetic/arithmetic) \
 		-I $(abspath long_arithmetic/fft) \
@@ -36,6 +39,7 @@ CFLAGS += -I $(abspath include) \
 # what needs to be compiled
 SOURCES = \
 	stack/stack.cpp \
+	vector/vector.cpp \
 	test/test_system.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
@@ -58,6 +62,7 @@ build/%.o: %.cpp $(INCLUDES)
 	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
 	@mkdir -p build/src
 	@mkdir -p build/stack
+	@mkdir -p build/vector
 	@mkdir -p build/test
 	@mkdir -p build/long_arithmetic/arithmetic
 	@mkdir -p build/long_arithmetic/fft

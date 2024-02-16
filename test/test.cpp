@@ -1,8 +1,9 @@
 #include <iostream>
 #include <test_system.hpp>
 #include <stack.cpp>
+#include <vector.cpp>
 
-using namespace std;
+// using namespace std;
 using namespace stack_emu;
 using namespace test_system;
 
@@ -105,6 +106,28 @@ TEST_ (FiveRule)
 
 _TEST
 
+TEST_ (VectorFiveRule)
+
+	stack_emu::vector<int> s; // empty
+	stack_emu::vector<int> s1(5); // 5 zeroes
+	stack_emu::vector<int> s2(5, 5); // 5 fives
+	for (int i = 0; i < 5; i++) {
+		s2[i]--;
+		ASSERT(s2[i] == 4);
+	}
+	stack_emu::vector<int> s3 = s2; // copy
+
+	ASSERT(s3 == s2);
+	s3 = s3;
+
+	stack_emu::vector<int> s4{std::move(s3)};
+	ASSERT(s4 == s2); // move
+	ASSERT(s2 != s3); // move effect
+
+	s3 = s2; // copy
+	ASSERT(s3 == s2);
+
+_TEST
 
 }
 
