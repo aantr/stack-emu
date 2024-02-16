@@ -133,7 +133,10 @@ void emulate(const char* filename) {
 	stack<LongDouble> st;
 	bool was_begin = false;
 	const size_t REG_SIZE = 32;
-	LongDouble reg[REG_SIZE] = {};
+	LongDouble* = new LongDouble[REG_SIZE];
+	for (size_t i = 0; i < REG_SIZE; i++) {
+		reg[i] = LongDouble();
+	}
 	
 	size_t current_command = 0;
 	while (current_command < commands_size) {
@@ -398,6 +401,7 @@ void emulate(const char* filename) {
 		free(commands[i]);
 	}
 	free(commands);
+	delete[] reg;
 	if (was_begin) {
 		throw runtime_error("END command expected");
 	}
