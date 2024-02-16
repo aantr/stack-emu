@@ -69,6 +69,10 @@ void compile(const char* filename) {
 			out.write(what_write, 1 * sizeof(char));
 		}
 	}
+	for (size_t i = 0; i < commands_size; i++) {
+		free(commands[i]);
+	}
+	free(commands);
 }
 
 void emulate(const char* filename) {
