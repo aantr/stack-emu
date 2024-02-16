@@ -17,7 +17,8 @@ BCYAN   = \033[1;36m
 RESET   = \033[0m
 
 # project dependencies	
-INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
+INCLUDES =  src/stack_emu.cpp \
+			long_arithmetic/arithmetic/arithmetic.hpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
 			stack/stack.cpp \
@@ -27,7 +28,7 @@ INCLUDES =  long_arithmetic/arithmetic/arithmetic.hpp \
 			deque/deque.cpp \
 			test/test.cpp \
 			test/test_system.hpp \
-			common
+			common /
 
 
 CFLAGS += -I $(abspath include) \

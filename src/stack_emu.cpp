@@ -15,13 +15,14 @@ using namespace std;
 
 const string DELIMITER = "%";
 const string XOR = "W";
+const int HOW_TO_COMPILE = 3;
 
-void compile(const char* filename) {
+bool compile(const char* filename, const char* dest) {
 	ifstream stream;
 	stream.open(filename);
 	if (!stream.is_open()) {
 		cout << "Cannot open file " << filename << endl;
-		return;
+		return 0;
 	}
 	
 	string inp;
@@ -52,20 +53,21 @@ void compile(const char* filename) {
 		throw runtime_error("LABEL: Expected input");
 	}
 	stream.close();
-	ofstream out(string(filename) + ".out", ios::binary);
+	ofstream out(dest, ios::binary);
 	if (!out.is_open()) {
-		cout << "Cannot write file " << filename << ".out" << endl;
-		return;
+		cout << "Cannot write file " << dest << endl;
+		return 0;
 	}
 	for (size_t i = 0; i < commands_size; i++) {
 		size_t len = strlen(commands[i]);
 		for (size_t j = 0; j < len; j++) {
 			commands[i][j] ^= XOR[0];
+			commands[i][j] += HOW_TO_COMPILE;
 		}
 		out.write(commands[i], strlen(commands[i]) * sizeof(char));
 		if (i + 1 < commands_size) {
 			char what_write[1];
-			what_write[0] = (char) (DELIMITER[0] ^ XOR[0]);
+			what_write[0] = (char) ((DELIMITER[0] ^ XOR[0]) + HOW_TO_COMPILE);
 			out.write(what_write, 1 * sizeof(char));
 		}
 	}
@@ -73,9 +75,10 @@ void compile(const char* filename) {
 		free(commands[i]);
 	}
 	free(commands);
+	return 1;
 }
 
-void emulate(const char* filename) {
+bool emulate(const char* filename) {
 	// run
 	// read bin
 
@@ -86,13 +89,14 @@ void emulate(const char* filename) {
 	ifstream stream(filename, ios::binary);
 	if (!stream.is_open()) {
 		cout << "Cannot open file " << filename << endl;
-		return;
+		return 0;
 	}
 
 	char read[1];
 	size_t current_size = 0;
 
 	while (stream.read(read, 1), stream) {
+		read[0] -= HOW_TO_COMPILE;
 		read[0] ^= XOR[0];
 		if (read[0] == DELIMITER[0]) {
 			current_size++;
@@ -405,16 +409,26 @@ void emulate(const char* filename) {
 	if (was_begin) {
 		throw runtime_error("END command expected");
 	}
+	return 1;
 }
 // https://stackoverflow.com/questions/3840582/still-reachable-leak-detected-by-valgrind
 int main(int argc, char* argv[]) {
 
-	if (argc != 3 || !(argv[1] == string("compile") || argv[1] == string("emulate"))) {
-		cout << "Usage: {executable} {compile|emulate} {path_to_file}" << endl;
+	if (argc != 3 || !(argv[1] == string("compile") || argv[1] == string("emulate") || argv[1] == string("compulate"))) {
+		cout << "Usage: {executable} {compile|emulate|compulate (both)} {path_to_file}" << endl;
 	} else if (argv[1] == string("compile")) {
-		compile(argv[2]);
-	} else {
+		string dest = string(argv[2]) + ".out";
+		if (compile(argv[2], dest.c_str())) {
+			cout << dest << endl;
+		}
+	} else if (argv[1] == string("emulate")){
 		emulate(argv[2]);
+	} else {
+		string dest = string(argv[2]) + ".out";
+		if (compile(argv[2], dest.c_str())) {
+			cout << dest << endl;
+		}
+		emulate(dest.c_str());
 	}
 	return 0;
 
