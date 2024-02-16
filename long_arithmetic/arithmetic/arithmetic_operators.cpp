@@ -125,8 +125,7 @@ namespace arithmetic {
         sign = sign * x.sign;
         exponent = exponent + x.exponent;
 
-        fft::digit* res = (fft::digit*) malloc(0 * sizeof(fft::digit));
-        if (!res) memory_error();
+        fft::digit* res;
         int res_size = 0;
 
         // cut on a half blocks

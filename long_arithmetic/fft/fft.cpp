@@ -208,7 +208,7 @@ void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, in
     }
 
     int mult_size = 0;
-    uint64_t* mult = (uint64_t*)malloc(0);
+    uint64_t* mult;
     fft_tourist::multiply(a, size_a, b, size_b, mult, mult_size);
     res_size = (int)mult_size + 1;
     res = (digit*)malloc(res_size * sizeof(digit));
