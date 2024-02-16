@@ -132,6 +132,7 @@ void emulate(const char* filename) {
 	size_t current_command = 0;
 	while (current_command < commands_size) {
 		inp = commands[current_command++];
+		cout << "'" << inp << "'" << endl;
 		if (inp == "BEGIN") {
 			if (was_begin) {
 				throw runtime_error("Double BEGIN command");

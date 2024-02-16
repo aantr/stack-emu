@@ -1,4 +1,4 @@
-BEGIN
+	BEGIN
 PUSH 1
 PUSH 1
 
