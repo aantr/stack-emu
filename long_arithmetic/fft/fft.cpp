@@ -26,14 +26,26 @@ inline num operator*(num a, num b) { return num(a.x * b.x - a.y * b.y, a.x * b.y
 inline num conj(num a) { return num(a.x, -a.y); }
 
 int base = 1;
-num* roots = new num[2]{{0, 0}, {1, 0}};
+bool initialized = false;
+// num* roots = {{0, 0}, {1, 0}};
+num* roots = nullptr;
 int roots_size = 2;
-int* rev = new int[2]{0, 1};
+// int* rev = {0, 1};
+int* rev = nullptr;
 int rev_size = 2;
 
 const dbl PI = static_cast<dbl>(acosl(-1.0));
 
 void ensure_base(int nbase) {
+    if (!initialized) {
+        initialized = true;
+        roots = (num*) malloc(2 * sizeof(num));
+        roots[0] = {0, 0};
+        roots[1] = {1, 0};
+        rev = (int*) malloc(2 * sizeof(int));
+        rev[0] = 0;
+        rev[1] = 1;
+    }
     if (nbase <= base) {
         return;
     }
