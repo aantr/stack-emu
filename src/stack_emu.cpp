@@ -133,7 +133,7 @@ void emulate(const char* filename) {
 	stack<LongDouble> st;
 	bool was_begin = false;
 	const size_t REG_SIZE = 32;
-	LongDouble* = new LongDouble[REG_SIZE];
+	LongDouble* reg = new LongDouble[REG_SIZE];
 	for (size_t i = 0; i < REG_SIZE; i++) {
 		reg[i] = LongDouble();
 	}
