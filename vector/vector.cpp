@@ -42,6 +42,8 @@ namespace stack_emu {
 
 	template <class T>
 	vector<T>::vector() {
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		data = new T[0];
 		capacity = 0;
@@ -49,6 +51,8 @@ namespace stack_emu {
 
 	template <class T>
 	vector<T>::vector(unsigned int sz_) {
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		data = new T[0];
 		capacity = 0;
@@ -57,6 +61,8 @@ namespace stack_emu {
 
 	template <class T>
 	vector<T>::vector(unsigned int sz_, const T& elem) {
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		capacity = 0;
 		data = new T[0];
@@ -68,6 +74,8 @@ namespace stack_emu {
 
 	template <class T>
 	vector<T>::vector(const vector &other) { // copy
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = other.sz;
 		capacity = other.capacity;
 		data = new T[capacity];
@@ -89,6 +97,8 @@ namespace stack_emu {
 
 	template <class T>
 	vector<T>::vector(vector &&other) noexcept {
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		data = exchange(other.data, nullptr);
 		sz = exchange(other.sz, 0);
 		capacity = exchange(other.capacity, 0);
