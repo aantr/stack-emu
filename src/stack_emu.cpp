@@ -92,6 +92,10 @@ void emulate(const char* filename) {
 	while (stream.read(read, 1), stream) {
 		read[0] ^= XOR[0];
 		if (read[0] == DELIMITER[0]) {
+			current_size++;
+			commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
+			commands[commands_size - 1][current_size - 1] = '\0';
+
 			commands_size++;
 			commands = (char**) realloc(commands, commands_size * sizeof(char*));
 			commands[commands_size - 1] = (char*) malloc(0);
