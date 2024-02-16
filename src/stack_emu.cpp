@@ -35,8 +35,9 @@ void compile(const char* filename) {
 		cout << "'" << inp << "'" << endl;
 		commands_size++;
 		commands = (char**) realloc(commands, commands_size * sizeof(char*));
-		char* command = (char*) malloc(inp.size() * sizeof(char));
+		char* command = (char*) malloc((inp.size() + 1) * sizeof(char));
 		memcpy(command, inp.data(), inp.size());
+		command[inp.size()] = '\0';
 		commands[commands_size - 1] = command;
 		if (was_label) {
 			if (labels.count(inp)) {
