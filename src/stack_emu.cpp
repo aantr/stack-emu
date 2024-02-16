@@ -13,8 +13,8 @@ using namespace stack_emu;
 using namespace arithmetic;
 using namespace std;
 
-const char* DELIMITER = " ";
-const char* XOR = "\0";
+const char* DELIMITER = "%\0";
+const char* XOR = "W\0";
 
 void compile(const char* filename) {
 	ifstream stream;
@@ -67,7 +67,7 @@ void compile(const char* filename) {
 		if (i + 1 < commands_size) {
 			char what_write[1];
 			what_write[0] = (char) (DELIMITER[0] ^ XOR[0]);
-			out.write(what_write, strlen(DELIMITER) * sizeof(char));
+			out.write(what_write, 1 * sizeof(char));
 		}
 	}
 }
