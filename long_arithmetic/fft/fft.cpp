@@ -27,25 +27,41 @@ inline num conj(num a) { return num(a.x, -a.y); }
 
 int base = 1;
 bool initialized = false;
-// num* roots = {{0, 0}, {1, 0}};
-num* roots = nullptr;
-int roots_size = 2;
-// int* rev = {0, 1};
-int* rev = nullptr;
-int rev_size = 2;
+num* roots;
+int roots_size;
+int* rev;
+int rev_size;
+
+num *fa = nullptr, *fb = nullptr;
+int fa_size = 0, fb_size = 0;
+
+void init_fft() {
+    initialized = true;
+    fa = (num*) malloc(0);
+    fa_size = 0;
+    fb = (num*) malloc(0);
+    fb_size = 0;
+    roots = (num*) malloc(2 * sizeof(num));
+    roots[0] = {0, 0};
+    roots[1] = {1, 0};
+    roots_size = 2;
+    rev = (int*) malloc(2 * sizeof(int));
+    rev[0] = 0;
+    rev[1] = 1;
+    rev_size = 2;
+}
+
+void free_fft() {
+    initialized = false;
+    free(fa);
+    free(fb);
+    free(roots);
+    free(rev);
+}
 
 const dbl PI = static_cast<dbl>(acosl(-1.0));
 
 void ensure_base(int nbase) {
-    if (!initialized) {
-        initialized = true;
-        roots = (num*) malloc(2 * sizeof(num));
-        roots[0] = {0, 0};
-        roots[1] = {1, 0};
-        rev = (int*) malloc(2 * sizeof(int));
-        rev[0] = 0;
-        rev[1] = 1;
-    }
     if (nbase <= base) {
         return;
     }
@@ -93,9 +109,6 @@ void fft(num*& a, int& a_size, int n = -1) {
         }
     }
 }
-
-num *fa = (num*) malloc(0), *fb =(num*) malloc(0);
-int fa_size = 0, fb_size = 0;
 
 void square(uint32_t*& a, int& a_size, uint64_t*& res, int& res_size) {
     if (a_size == 0) {
@@ -199,8 +212,21 @@ void multiply(uint32_t*& a, int& a_size, uint32_t*& b, int& b_size, uint64_t*& r
 }  // namespace fft_tourist
 
 namespace fft {
+// just use correct digit type, use fft_tourist and do carry
 
-void FFT::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int& res_size, uint32_t base) {
+fft::fft() {
+    if (!fft_tourist::initialized) {
+        fft_tourist::init_fft();
+    }
+}
+
+fft::~fft() {
+    if (fft_tourist::initialized) {
+        fft_tourist::free_fft();
+    }
+}
+
+void fft::multiply(digit*& a, int size_a, digit*& b, int size_b, digit*& res, int& res_size, uint32_t base) {
     if (size_a == 0 || size_b == 0) {
         res_size = 0;
         res = (digit*)malloc(0 * sizeof(digit));

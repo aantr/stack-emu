@@ -13,7 +13,7 @@ namespace arithmetic {
 
     using namespace std;
 
-    fft::FFT fft;
+    fft::fft fft;
 
     istream& operator>>(istream& os, LongDouble& value) {
         string s;
@@ -64,9 +64,6 @@ namespace arithmetic {
     }
 
     LongDouble& LongDouble::operator=(const LongDouble& other) { // C5267
-        if (this == &other) {
-            return *this;
-        }
         sign = other.sign;
         digits_size = other.digits_size;
         free(digits);
@@ -79,23 +76,18 @@ namespace arithmetic {
         return *this;
     }
 
-    // LongDouble& LongDouble::operator=(LongDouble &&other) noexcept { // move
-    //     if (this == &other) {
-    //         return *this;
-    //     }
-    //     // sign = exchange(other.sign, 1);
-    //     // digits = exchange(other.digits, nullptr);
-    //     // digits_size = exchange(other.digits_size, 0);
-    //     // precision = exchange(other.precision, default_precision);
-    //     // exponent = exchange(other.exponent, 0);
-
-    //     swap(sign, other.sign);
-    //     swap(digits, other.digits);
-    //     swap(digits_size, other.digits_size);
-    //     swap(precision, other.precision);
-    //     swap(exponent, other.exponent);
-    //     return *this;
-    // }
+    LongDouble& LongDouble::operator=(LongDouble &&other) noexcept { // move
+        if (this == &other) {
+            return *this;
+        }
+        free(digits);
+        sign = exchange(other.sign, 1);
+        digits = exchange(other.digits, nullptr);
+        digits_size = exchange(other.digits_size, 0);
+        precision = exchange(other.precision, default_precision);
+        exponent = exchange(other.exponent, 0);
+        return *this;
+    }
 
     LongDouble operator""_ld (const char* x, unsigned long size) {
         LongDouble res(x, max((unsigned long) LongDouble::default_precision, (size - 1) / LongDouble::base_exp + 1));
@@ -419,9 +411,9 @@ namespace arithmetic {
             return res;
         }
 
-        if (sign == -1)
+        if (sign == -1) {
             return x - (-(*this));
-
+        }
         return *this - (-x); 
     }
 
@@ -435,7 +427,6 @@ namespace arithmetic {
                 LongDouble res = x - *this;
                 return -res;
             }
-
             LongDouble res;
             res.sign = 1;
             res.precision = precision;
@@ -508,9 +499,9 @@ namespace arithmetic {
             return res;
         }
 
-        if (sign == -1 && x.sign == -1)
+        if (sign == -1 && x.sign == -1) {
             return (-x) - (-(*this));
-
+        }
         return *this + (-x);
     }
 

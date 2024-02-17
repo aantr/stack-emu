@@ -129,8 +129,8 @@ namespace arithmetic {
         bool operator!=(const LongDouble& x) const;
         LongDouble& operator=(const LongDouble& x);
         
-        // LongDouble(LongDouble &&other) noexcept; // move
-        // LongDouble& operator=(LongDouble &&other) noexcept; // move
+        LongDouble(LongDouble &&other) noexcept; 
+        LongDouble& operator=(LongDouble &&other) noexcept; 
         ~LongDouble();
 
         friend istream& operator>>(istream& os, LongDouble&);

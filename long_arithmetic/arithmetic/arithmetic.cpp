@@ -58,16 +58,13 @@ namespace arithmetic {
         throw NegativePowerError();
     }
 
-    // LongDouble::LongDouble(LongDouble &&other) noexcept { // move;
-    //     if (this == &other) {
-    //         return;
-    //     }
-    //     sign = exchange(other.sign, 1);
-    //     digits = exchange(digits, nullptr);
-    //     digits_size = exchange(digits_size, 0);
-    //     precision = exchange(precision, default_precision);
-    //     exponent = exchange(exponent, 0);
-    // }
+    LongDouble::LongDouble(LongDouble &&other) noexcept {
+        sign = exchange(other.sign, 1);
+        digits = exchange(other.digits, nullptr);
+        digits_size = exchange(other.digits_size, 0);
+        precision = exchange(other.precision, default_precision);
+        exponent = exchange(other.exponent, 0);
+    }
 
     LongDouble::~LongDouble() {
         free(digits);
@@ -197,7 +194,7 @@ namespace arithmetic {
         LongDouble::init_from_string(*this, value);
     }
 
-    LongDouble::LongDouble(const string& value) {
+    LongDouble::LongDouble(const string& value) {           
         init_from_string(*this, value.c_str());
         precision = default_precision;
     }
@@ -749,8 +746,6 @@ namespace arithmetic {
         // current_rem / y * y + current_rem
         // -current_rem % y
         // q = ceil(abs(current_rem) / y)
-
-        // cout << current_rem.digits_size << " " << endl;
 
         uint64_t q;
 
