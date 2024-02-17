@@ -119,7 +119,7 @@ bool compile(const char* filename, const char* dest) {
 
 		} else if (inp.back() == ':') {
 
-		} else if (inp == "jmp" || inp == "jeq" || inp == "jnq" || inp == "ja" || inp == "jb" || inp == "jae" || inp == "jbe") {
+		} else if (inp == "jmp" || inp == "jeq" || inp == "jne" || inp == "ja" || inp == "jb" || inp == "jae" || inp == "jbe") {
 			if (current_command == commands.size()) {
 				throw compile_error(inp + ": expected input");
 			}

@@ -1,0 +1,174 @@
+// Solving square equation
+
+SOLVE_EQUATION: // Registers: (a) (b) (c)
+
+	// Checking if a == 0
+	pushr ax
+	push 0.0
+	jeq Ae0
+
+	// Calculating Discriminant:
+	// d = b b * 4 a c * * -
+	pushr bx
+	pushr bx
+	mul
+
+	push 4
+	pushr ax
+	pushr cx
+	mul
+	mul
+
+	sub
+
+	popr dx
+
+	// Checking Discriminant for being negative
+	pushr dx
+	push 0
+	jb Db0
+
+	// Jumping to some code if D >= 0
+	jmp Da0
+
+	solve_equation_return:
+ret
+
+
+// Registers: (0) (b) (c)
+Ae0:
+	// Checking if b == 0
+	pushr bx
+	push 0
+	jeq ABe0
+
+	// Calculating x = -c/b
+	pushr cx
+	push -1
+	mul
+	pushr bx
+	div
+
+	push 2 // Return code 2
+
+	// Stack: (x) (2)
+jmp solve_equation_return
+
+
+// Registers: (0) (0) (c)
+ABe0:
+	// Checking if c == 0
+	pushr cx
+	push 0
+	jeq ABCe0
+
+	push 3 // Error code 3
+	// c == 0 and c != 0
+	// Problem we've got
+
+jmp solve_equation_return
+
+
+// Registers: (0) (0) (!0)
+ABCe0:
+	push 1 // Error code 1
+
+jmp solve_equation_return
+
+
+// Registers: (a) (b) (c) (d<0)
+Db0:
+	push 1 // Error code 1
+
+jmp solve_equation_return
+
+
+// Registers: (a) (b) (c) (d>=0)
+Da0:
+	// Calculating 1-st root
+	// x1 = b -1 * d sqrt + 2 div a div
+	pushr bx
+	push -1
+	mul
+
+	pushr dx
+	sqrt
+
+	add
+
+	push 2
+	div
+	pushr ax
+	div
+
+	// Checking if D == 0 then output only one
+	pushr dx
+	push 0
+	jne Dne0
+
+	// Change (d) register !
+	popr dx
+	pushr dx
+	pushr dx
+	push 2 // Error code 2
+	
+	jmp D0
+	// Stack: (x1) (2)
+
+	Dne0:
+
+	// Calculating 2-nd root
+	// x2 = b -1 * d sqrt - 2 div a div
+	pushr bx
+	push -1
+	mul
+
+	pushr dx
+	sqrt
+
+	sub
+
+	push 2
+	div
+	pushr ax
+	div
+	push 0 // Error code 0
+	// Stack: (x1) (x2) (0)
+
+	D0:
+
+
+
+
+jmp solve_equation_return
+
+// 0 - 2 roots, 1 - 0 roots, 2 - 1 root, 3 - inf roots (all rational)
+begin
+	in
+	popr ax
+	in
+	popr bx
+	in
+	popr cx
+
+	call SOLVE_EQUATION
+
+	// Printing everything in a beautiful manner:
+	popr ax
+	pushr ax
+	out
+
+	// 2 roots
+	push 0
+	pushr ax
+	jeq two_roots
+
+	// 1 root
+	push 2
+	pushr ax
+	jeq one_root
+
+end
+
+two_roots: out out end
+one_root:      out end
