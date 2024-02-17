@@ -49,19 +49,20 @@ bool compile(const char* filename, const char* dest) {
 	vector<pair<string, size_t>> labels;
 	vector<pair<string, size_t>> registers;
 	auto get_label = [&](string label) -> size_t { // index or SIZE_MAX
-		size_t idx = lower_bound(labels.data(), labels.data() + labels.size(), pair<string, size_t>{label, 0}) - labels.data();
+		size_t idx = lower_bound(labels.data(), labels.data() + labels.size(), 
+			pair<string, size_t>{label, 0}) - labels.data();
 		if (idx >= labels.size() || labels[idx].first != label) {
 			return SIZE_MAX;
 		}
 		return labels[idx].second;
 	};
 	auto get_register = [&](string reg) -> size_t { // index or SIZE_MAX
-		for (size_t i = 0; i < registers.size(); i++) {
-			if (registers[i].first == reg) {
-				return registers[i].second;
-			}
+		size_t idx = lower_bound(registers.data(), registers.data() + registers.size(), 
+			pair<string, size_t>{reg, 0}) - registers.data();
+		if (idx >= registers.size() || registers[idx].first != reg) {
+			return SIZE_MAX;
 		}
-		return SIZE_MAX;
+		return registers[idx].second;
 	};
 	for (size_t i = 0; i < commands.size(); i++) {
 		if (commands[i].back() == ':') {
