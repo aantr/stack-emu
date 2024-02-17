@@ -11,7 +11,7 @@ namespace stack_emu {
 		size_t sz;
 		size_t capacity;
 		size_t begin;
-		T* data;
+		T* data_;
 
 		void reserve_(size_t);
 		void resize_(size_t);
@@ -41,6 +41,7 @@ namespace stack_emu {
 		T& front() const;
 		T& back() const;
 		T& operator[](size_t) const;
+		T* data() const;
 
 		bool operator==(const deque &other) const;
 		bool operator!=(const deque &other) const;

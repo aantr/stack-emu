@@ -32,13 +32,13 @@ namespace stack_emu {
 		T* temp = new T[capacity];
 		size_t j = min(sz, capacity);
         for (size_t i = 0; i < j; i++) {
-            temp[i] = data[i];
+            temp[i] = data_[i];
         }
         for (size_t i = j; i < capacity; i++) {
             temp[i] = T();
         }
-        delete[] data;
-        data = temp;
+        delete[] data_;
+        data_ = temp;
 	}
 
 	template <class T>
@@ -46,7 +46,7 @@ namespace stack_emu {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
-		data = new T[0];
+		data_ = new T[0];
 		capacity = 0;
 	}
 
@@ -55,7 +55,7 @@ namespace stack_emu {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
-		data = new T[0];
+		data_ = new T[0];
 		capacity = 0;
 		reserve_(sz_);
 	}
@@ -66,10 +66,10 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		capacity = 0;
-		data = new T[0];
+		data_ = new T[0];
 		reserve_(sz_);
 		for (size_t i = 0; i < sz_; i++) {
-			data[i] = elem;
+			data_[i] = elem;
 		}		
 	}
 
@@ -79,8 +79,8 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = other.sz;
 		capacity = other.capacity;
-		data = new T[capacity];
-		std::copy(other.data, other.data + capacity, data);
+		data_ = new T[capacity];
+		std::copy(other.data_, other.data_ + capacity, data_);
 	}
 
 	template <class T>
@@ -88,11 +88,11 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		delete[] data;
+		delete[] data_;
 		sz = other.sz;
 		capacity = other.capacity;
-		data = new T[capacity];
-		std::copy(other.data, other.data + capacity, data);
+		data_ = new T[capacity];
+		std::copy(other.data_, other.data_ + capacity, data_);
 		return *this;		
 	}
 
@@ -100,7 +100,7 @@ namespace stack_emu {
 	stack<T>::stack(stack &&other) noexcept {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
-		data = exchange(other.data, nullptr);
+		data_ = exchange(other.data_, nullptr);
 		sz = exchange(other.sz, 0);
 		capacity = exchange(other.capacity, 0);
 	}
@@ -110,8 +110,8 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		delete[] data;
-		data = exchange(other.data, nullptr);
+		delete[] data_;
+		data_ = exchange(other.data_, nullptr);
 		sz = exchange(other.sz, 0);
 		capacity = exchange(other.capacity, 0);
 		return *this;
@@ -119,7 +119,7 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::~stack() {
-		delete[] data;
+		delete[] data_;
 	}
 
 	template <class T>
@@ -143,7 +143,7 @@ namespace stack_emu {
 	template <class T>
 	void stack<T>::push(const T& elem) {
 		reserve_(sz + 1);
-		data[sz - 1] = elem;
+		data_[sz - 1] = elem;
 	}
 
 	template<class T>
@@ -151,7 +151,12 @@ namespace stack_emu {
 		if (sz == 0) {
 			throw runtime_error("Cannot get from empty stack");
 		}
-		return data[sz - 1];
+		return data_[sz - 1];
+	}
+
+	template<class T>
+	T* stack<T>::data() const {
+		return data_;
 	}
 
 	template<class T>
@@ -159,7 +164,7 @@ namespace stack_emu {
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = 0; i < sz; i++) {
-			if (!(data[i] == other.data[i])) {
+			if (!(data_[i] == other.data_[i])) {
 				return false;
 			}
 		}
@@ -171,7 +176,7 @@ namespace stack_emu {
 		static_assert(is_inequality_comparable<T>::value, "is_inequality_comparable");
 		if (other.sz != sz) return true;
 		for (size_t i = 0; i < sz; i++) {
-			if (data[i] != other.data[i]) {
+			if (data_[i] != other.data_[i]) {
 				return true;
 			}
 		}

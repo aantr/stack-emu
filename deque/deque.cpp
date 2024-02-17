@@ -38,7 +38,7 @@ namespace stack_emu {
 		T* temp = new T[capacity];
 		size_t j = min(sz, v);
         for (size_t i = v; i < v + j; i++) {
-            temp[i] = data[i - v + begin];
+            temp[i] = data_[i - v + begin];
         }
         for (size_t i = 0; i < v; i++) {
             temp[i] = T();
@@ -46,8 +46,8 @@ namespace stack_emu {
         for (size_t i = v + j; i < capacity; i++) {
             temp[i] = T();
         }
-        delete[] data;
-        data = temp;
+        delete[] data_;
+        data_ = temp;
         begin = v;
 	}
 
@@ -57,7 +57,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin = 0;
-		data = new T[0];
+		data_ = new T[0];
 		capacity = 0;
 	}
 
@@ -67,7 +67,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin = 0;
-		data = new T[0];
+		data_ = new T[0];
 		capacity = 0;
 		reserve_(sz_);
 	}
@@ -79,10 +79,10 @@ namespace stack_emu {
 		sz = 0;
 		begin = 0;
 		capacity = 0;
-		data = new T[0];
+		data_ = new T[0];
 		reserve_(sz_);
 		for (size_t i = 0; i < sz_; i++) {
-			data[begin + i] = elem;
+			data_[begin + i] = elem;
 		}
 	}
 
@@ -93,8 +93,8 @@ namespace stack_emu {
 		sz = other.sz;
 		begin = other.begin;
 		capacity = other.capacity;
-		data = new T[capacity];
-		std::copy(other.data, other.data + capacity, data);
+		data_ = new T[capacity];
+		std::copy(other.data_, other.data_ + capacity, data_);
 	}
 
 	template <class T>
@@ -102,12 +102,12 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		delete[] data;
+		delete[] data_;
 		sz = other.sz;
 		begin = other.begin;
 		capacity = other.capacity;
-		data = new T[capacity];
-		std::copy(other.data, other.data + capacity, data);
+		data_ = new T[capacity];
+		std::copy(other.data_, other.data_ + capacity, data_);
 		return *this;		
 	}
 
@@ -115,7 +115,7 @@ namespace stack_emu {
 	deque<T>::deque(deque &&other) noexcept {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
-		data = exchange(other.data, nullptr);
+		data_ = exchange(other.data_, nullptr);
 		sz = exchange(other.sz, 0);
 		begin = exchange(other.begin, 0);
 		capacity = exchange(other.capacity, 0);
@@ -126,8 +126,8 @@ namespace stack_emu {
 		if (&other == this) {
 			return *this;
 		}
-		delete[] data;
-		data = exchange(other.data, nullptr);
+		delete[] data_;
+		data_ = exchange(other.data_, nullptr);
 		sz = exchange(other.sz, 0);
 		begin = exchange(other.begin, 0);
 		capacity = exchange(other.capacity, 0);
@@ -136,7 +136,7 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::~deque() {
-		delete[] data;
+		delete[] data_;
 	}
 
 	template <class T>
@@ -154,7 +154,7 @@ namespace stack_emu {
 		size_t prev_sz = sz;
 		reserve_(v);
 		for (size_t i = prev_sz; i < sz; i++) {
-			data[i + begin] = T();
+			data_[i + begin] = T();
 		}
 	}
 
@@ -163,7 +163,7 @@ namespace stack_emu {
 		size_t prev_sz = sz;
 		reserve_(v);
 		for (size_t i = prev_sz; i < sz; i++) {
-			data[i + begin] = elem;
+			data_[i + begin] = elem;
 		}
 	}
 
@@ -182,7 +182,7 @@ namespace stack_emu {
 		reserve_push_front_();
 		begin--;
 		sz++;
-		data[begin] = elem;
+		data_[begin] = elem;
 	}
 
 	template <class T>
@@ -196,7 +196,7 @@ namespace stack_emu {
 	template <class T>
 	void deque<T>::push_back(const T& elem) {
 		reserve_(sz + 1);
-		data[begin + sz - 1] = elem;
+		data_[begin + sz - 1] = elem;
 	}
 
 	template<class T>
@@ -204,7 +204,7 @@ namespace stack_emu {
 		if (sz == 0) {
 			throw runtime_error("Cannot get from empty deque");
 		}
-		return data[begin];
+		return data_[begin];
 	}
 
 	template<class T>
@@ -212,7 +212,7 @@ namespace stack_emu {
 		if (sz == 0) {
 			throw runtime_error("Cannot get from empty deque");
 		}
-		return data[begin + sz - 1];
+		return data_[begin + sz - 1];
 	}
 
 	template<class T>
@@ -220,16 +220,20 @@ namespace stack_emu {
 		if (index >= sz) {
 			throw runtime_error("Index out of range");
 		}
-		return data[index + begin];
+		return data_[index + begin];
 	}
 
+	template<class T>
+	T* deque<T>::data() const {
+		return data_ + begin;
+	}
 
 	template<class T>
 	bool deque<T>::operator==(const deque &other) const {		
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = begin; i < begin + sz; i++) {
-			if (!(data[i] == other.data[i])) {
+			if (!(data_[i] == other.data_[i])) {
 				return false;
 			}
 		}
@@ -241,7 +245,7 @@ namespace stack_emu {
 		static_assert(is_inequality_comparable<T>::value, "is_inequality_comparable");
 		if (other.sz != sz) return true;
 		for (size_t i = begin; i < begin + sz; i++) {
-			if (data[i] != other.data[i]) {
+			if (data_[i] != other.data_[i]) {
 				return true;
 			}
 		}

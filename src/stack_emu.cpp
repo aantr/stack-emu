@@ -4,20 +4,31 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
-#include <map>
 #include <climits>
 #include <cstring>
 #include <vector>
+#include <algorithm>
 
 using namespace stack_emu;
 using namespace arithmetic;
 using namespace std;
 
-const string DELIMITER = "%";
-const string XOR = "W";
-const int HOW_TO_COMPILE = 3;
+const string DELIMITER = "#";
+
+class compile_error: public exception {
+public:
+	string msg;
+	compile_error(const string msg_): msg(msg_) {
+
+	}
+    const char * what() const noexcept override {
+        return msg.c_str();
+    }
+};
 
 bool compile(const char* filename, const char* dest) {
+
+	// open file
 	ifstream stream;
 	stream.open(filename);
 	if (!stream.is_open()) {
@@ -25,270 +36,92 @@ bool compile(const char* filename, const char* dest) {
 		return 0;
 	}
 	
+	// presets
 	string inp;
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
-	char **commands = (char**) malloc(0);
-	size_t commands_size = 0;
-	map<string, size_t> labels;
-	bool was_label = false;
-	while (stream >> inp) { // compile
-		commands_size++;
-		commands = (char**) realloc(commands, commands_size * sizeof(char*));
-		char* command = (char*) malloc((inp.size() + 1) * sizeof(char));
-		memcpy(command, inp.data(), inp.size());
-		command[inp.size()] = '\0';
-		commands[commands_size - 1] = command;
-		if (was_label) {
-			if (labels.count(inp)) {
-				throw runtime_error("LABEL: Expected unique name");
-			}
-			labels[inp] = commands_size;
-			was_label = false;
-		} else if (inp == "LABEL") {
-			was_label = true;
-		}
-	}
-	if (was_label) {
-		throw runtime_error("LABEL: Expected input");
+	vector<string> commands;
+	while (stream >> inp) { // read file
+		commands.push_back(inp);
 	}
 	stream.close();
-	ofstream out(dest, ios::binary);
-	if (!out.is_open()) {
-		cout << "Cannot write file " << dest << endl;
-		return 0;
-	}
-	for (size_t i = 0; i < commands_size; i++) {
-		size_t len = strlen(commands[i]);
-		for (size_t j = 0; j < len; j++) {
-			commands[i][j] ^= XOR[0];
-			commands[i][j] += HOW_TO_COMPILE;
+
+	vector<pair<string, size_t>> labels;
+	vector<pair<string, size_t>> registers;
+	auto get_label = [&](string label) -> size_t { // index or SIZE_MAX
+		size_t idx = lower_bound(labels.data(), labels.data() + labels.size(), pair<string, size_t>{label, 0}) - labels.data();
+		if (idx >= labels.size() || labels[idx].first != label) {
+			return SIZE_MAX;
 		}
-		out.write(commands[i], strlen(commands[i]) * sizeof(char));
-		if (i + 1 < commands_size) {
-			char what_write[1];
-			what_write[0] = (char) ((DELIMITER[0] ^ XOR[0]) + HOW_TO_COMPILE);
-			out.write(what_write, 1 * sizeof(char));
-		}
-	}
-	for (size_t i = 0; i < commands_size; i++) {
-		free(commands[i]);
-	}
-	free(commands);
-	return 1;
-}
-
-bool emulate(const char* filename) {
-	// run
-	// read bin
-
-	char **commands = (char**) malloc(sizeof(char*));
-	size_t commands_size = 1;
-	commands[commands_size - 1] = (char*) malloc(0);
-
-	ifstream stream(filename, ios::binary);
-	if (!stream.is_open()) {
-		cout << "Cannot open file " << filename << endl;
-		return 0;
-	}
-
-	char read[1];
-	size_t current_size = 0;
-
-	while (stream.read(read, 1), stream) {
-		read[0] -= HOW_TO_COMPILE;
-		read[0] ^= XOR[0];
-		if (read[0] == DELIMITER[0]) {
-			current_size++;
-			commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
-			commands[commands_size - 1][current_size - 1] = '\0';
-
-			commands_size++;
-			commands = (char**) realloc(commands, commands_size * sizeof(char*));
-			commands[commands_size - 1] = (char*) malloc(0);
-			current_size = 0;
-		} else {
-			current_size++;
-			commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
-			commands[commands_size - 1][current_size - 1] = read[0];
-		}
-	}
-	current_size++;
-	commands[commands_size - 1] = (char*) realloc(commands[commands_size - 1], current_size * sizeof(char));
-	commands[commands_size - 1][current_size - 1] = '\0';
-	stream.close();
-	if (current_size == 0 && commands_size == 1) {
-		commands_size--;
-	}
-
-	string inp;
-	map<string, size_t> labels;
-	for (size_t i = 0; i < commands_size; i++) {
-		if (commands[i] == string("LABEL")) {
-			if (i == commands_size - 1) {
-				throw runtime_error("LABEL: Expected input");
+		return labels[idx].second;
+	};
+	auto get_register = [&](string reg) -> size_t { // index or SIZE_MAX
+		for (size_t i = 0; i < registers.size(); i++) {
+			if (registers[i].first == reg) {
+				return registers[i].second;
 			}
-			labels[commands[i + 1]] = i + 2;
+		}
+		return SIZE_MAX;
+	};
+	for (size_t i = 0; i < commands.size(); i++) {
+		if (commands[i].back() == ':') {
+			if (get_label(commands[i].substr(0, commands[i].size() - 1)) != SIZE_MAX) {
+				throw compile_error("label declare should be unique " + commands[i].substr(0, commands[i].size() - 1));
+			}
+			labels.push_back({commands[i].substr(0, commands[i].size() - 1), i + 1});
+			commands[i] = to_string(i + 1) + ":";
 		}
 	}
-	LongDouble::default_precision = INT_MAX;
-	cout << setprecision(INT_MAX);
-
-	stack<LongDouble> st;
-	bool was_begin = false;
-	const size_t REG_SIZE = 32;
-	LongDouble* reg = new LongDouble[REG_SIZE];
-	for (size_t i = 0; i < REG_SIZE; i++) {
-		reg[i] = LongDouble();
+	for (size_t i = 0; i < commands.size(); i++) {
+		if (commands[i] == "pushr" || commands[i] == "popr") {
+			if (i == commands.size() - 1) {
+				throw compile_error(commands[i] + ": expected input");
+			}
+			if (get_register(commands[i + 1]) != SIZE_MAX) {
+				commands[i + 1] = to_string(get_register(commands[i + 1]));
+			} else {
+				registers.push_back({commands[i + 1], i + 2});
+				commands[i + 1] = to_string(i + 2);
+			}
+		}
 	}
-	
+	sort(labels.data(), labels.data() + labels.size());
+	sort(registers.data(), registers.data() + registers.size());
+
+	// parse
 	size_t current_command = 0;
-	while (current_command < commands_size) {
+	bool was_begin = false;
+	while (current_command < commands.size()) {
 		inp = commands[current_command++];
-		if (inp == "BEGIN") {
+		std::transform(inp.begin(), inp.end(), inp.begin(),
+    			[](unsigned char c){ return std::tolower(c); });
+		if (inp == "begin") {
 			if (was_begin) {
-				throw runtime_error("Double BEGIN command");
+				throw compile_error("double begin command");
 			}
 			was_begin = true;
-		} else if (inp == "END") {
+		} else if (inp == "end") {
 			if (!was_begin) {
-				throw runtime_error("Expected BEGIN before END command");
+				throw compile_error("expected begin before end command");
 			}
 			was_begin = false;
 			break;
 		} else if (was_begin == false) {
-			throw runtime_error("Expected BEGIN before " + inp);
-		} else if (inp == "LABEL") {
-			if (current_command == commands_size) {
-				throw runtime_error("LABEL: Expected input");
+			throw compile_error("expected begin before " + inp);
+		} else if (inp.back() == ':') {
+
+		} else if (inp == "jmp" || inp == "jeq" || inp == "jnq" || inp == "ja" || inp == "jb" || inp == "jae" || inp == "jbe") {
+			if (current_command == commands.size()) {
+				throw compile_error(inp + ": expected input");
 			}
-			inp = commands[current_command++];
-		} else if (inp == "JMP") {
-			if (current_command == commands_size) {
-				throw runtime_error("JMP: Expected input");
+			string lab = commands[current_command++];
+			if (get_label(lab) == SIZE_MAX) {
+				throw compile_error(inp + ": no such label " + lab);
 			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error("JMP: No such label: " + inp);
-			}
-			current_command = labels[inp];
-		} else if (inp == "JEQ") {
-			if (current_command == commands_size) {
-				throw runtime_error(inp + ": Expected input");
-			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error(inp + ": No such label: " + inp);
-			}
-			if (st.size() < 2) {
-				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
-			}
-			auto a = st.top();
-			st.pop();
-			auto b = st.top();
-			st.push(a);
-			bool statement = a == b;
-			if (statement) {
-				current_command = labels[inp];
-			}
-		} else if (inp == "JNE") {
-			if (current_command == commands_size) {
-				throw runtime_error(inp + ": Expected input");
-			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error(inp + ": No such label: " + inp);
-			}
-			if (st.size() < 2) {
-				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
-			}
-			auto a = st.top();
-			st.pop();
-			auto b = st.top();
-			st.push(a);
-			bool statement = a != b;
-			if (statement) {
-				current_command = labels[inp];
-			}
-		} else if (inp == "JA") {
-			if (current_command == commands_size) {
-				throw runtime_error(inp + ": Expected input");
-			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error(inp + ": No such label: " + inp);
-			}
-			if (st.size() < 2) {
-				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
-			}
-			auto a = st.top();
-			st.pop();
-			auto b = st.top();
-			st.push(a);
-			bool statement = a > b;
-			if (statement) {
-				current_command = labels[inp];
-			}
-		} else if (inp == "JAE") {
-			if (current_command == commands_size) {
-				throw runtime_error(inp + ": Expected input");
-			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error(inp + ": No such label: " + inp);
-			}
-			if (st.size() < 2) {
-				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
-			}
-			auto a = st.top();
-			st.pop();
-			auto b = st.top();
-			st.push(a);
-			bool statement = a >= b;
-			if (statement) {
-				current_command = labels[inp];
-			}
-		} else if (inp == "JB") {
-			if (current_command == commands_size) {
-				throw runtime_error(inp + ": Expected input");
-			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error(inp + ": No such label: " + inp);
-			}
-			if (st.size() < 2) {
-				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
-			}
-			auto a = st.top();
-			st.pop();
-			auto b = st.top();
-			st.push(a);
-			bool statement = a < b;
-			if (statement) {
-				current_command = labels[inp];
-			}
-		} else if (inp == "JBE") {
-			if (current_command == commands_size) {
-				throw runtime_error(inp + ": Expected input");
-			}
-			inp = commands[current_command++];
-			if (labels.count(inp) == 0) {
-				throw runtime_error(inp + ": No such label: " + inp);
-			}
-			if (st.size() < 2) {
-				throw runtime_error(inp + ": Expected atleast 2 elements in stack");
-			}
-			auto a = st.top();
-			st.pop();
-			auto b = st.top();
-			st.push(a);
-			bool statement = a <= b;
-			if (statement) {
-				current_command = labels[inp];
-			}
-		} else if (inp == "PUSH") {
-			if (current_command == commands_size) {
-				throw runtime_error("PUSH: Expected input");
+			commands[current_command - 1] = to_string(get_label(lab));
+		} else if (inp == "push") {
+			if (current_command == commands.size()) {
+				throw compile_error(inp + ": expected input");
 			}
 			string value = commands[current_command++];
 			LongDouble v;
@@ -299,39 +132,253 @@ bool emulate(const char* filename) {
 				error = true;
 			}
 			if (error || !v.isInt()) {
-				throw runtime_error("PUSH: Wrong value format: " + value + ", expected: [-+][0-9]");
+				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
+			}
+		} else if (inp == "pop") {
+
+		} else if (inp == "pushr") {
+			if (current_command == commands.size()) {
+				throw compile_error(inp + ": expected input");
+			}
+			string reg = commands[current_command++];
+		} else if (inp == "popr") {
+			if (current_command == commands.size()) {
+				throw compile_error(inp + ": expected input");
+			}
+			string reg = commands[current_command++];
+		} else if (inp == "add") {
+
+		} else if (inp == "sub") {
+
+		} else if (inp == "mul") {
+
+		} else if (inp == "div") {
+
+		} else if (inp == "out") {
+
+		} else if (inp == "IN") {
+
+		} else {
+			throw compile_error("unexpected command " + inp);
+		}
+	}
+
+	ofstream out(dest, ios::binary);
+	if (!out.is_open()) {
+		cout << "Cannot write file " << dest << endl;
+		return 0;
+	}
+	for (size_t i = 0; i < commands.size(); i++) {
+		out.write(commands[i].data(), commands[i].size() * sizeof(char));
+		if (i + 1 < commands.size()) {
+			out.write(DELIMITER.data(), 1 * sizeof(char));
+		}
+	}
+	return 1;
+}
+
+bool emulate(const char* filename) {
+	// run
+	// read bin
+
+	vector<string> commands;
+	commands.push_back("");
+	ifstream stream(filename, ios::binary);
+	if (!stream.is_open()) {
+		cout << "Cannot open file " << filename << endl;
+		return 0;
+	}
+
+	char read[1];
+	while (stream.read(read, 1), stream) {
+		if (read[0] == DELIMITER[0]) {
+			commands.push_back("");
+		} else {
+			commands.back() += read[0];
+		}
+	}
+	stream.close();
+	if (commands.size() == 1 && commands.back().size() == 0) {
+		commands.pop_back();
+	}
+
+	string inp;
+	
+	LongDouble::default_precision = INT_MAX;
+	cout << setprecision(INT_MAX);
+
+	stack<LongDouble> st;
+	vector<LongDouble> reg;
+	size_t current_command = 0;
+	bool was_begin = false;
+
+	while (current_command < commands.size()) {
+		inp = commands[current_command++];
+		std::transform(inp.begin(), inp.end(), inp.begin(),
+    			[](unsigned char c){ return std::tolower(c); });
+		if (inp == "begin") {
+			if (was_begin) {
+				throw runtime_error("double begin command");
+			}
+			was_begin = true;
+		} else if (inp == "end") {
+			if (!was_begin) {
+				throw runtime_error("expected begin before end command");
+			}
+			was_begin = false;
+			break;
+		} else if (was_begin == false) {
+			throw runtime_error("expected begin before " + inp);
+		} else if (inp.back() == ':') {
+
+		} else if (inp == "jmp") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			current_command = stoi(lab);
+		} else if (inp == "jeq") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a == b;
+			if (statement) {
+				current_command = stoi(lab);
+			}
+		} else if (inp == "jne") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a != b;
+			if (statement) {
+				current_command = stoi(lab);
+			}
+		} else if (inp == "ja") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a > b;
+			if (statement) {
+				current_command = stoi(lab);
+			}
+		} else if (inp == "jae") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a >= b;
+			if (statement) {
+				current_command = stoi(lab);
+			}
+		} else if (inp == "jb") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a < b;
+			if (statement) {
+				current_command = stoi(lab);
+			}
+		} else if (inp == "jbe") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (st.size() < 2) {
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
+			}
+			auto a = st.top();
+			st.pop();
+			auto b = st.top();
+			st.push(a);
+			bool statement = a <= b;
+			if (statement) {
+				current_command = stoi(lab);
+			}
+		} else if (inp == "push") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string value = commands[current_command++];
+			LongDouble v;
+			bool error = false;
+			try {
+				v = value;
+			} catch (const InitStringError &e) {
+				error = true;
+			}
+			if (error || !v.isInt()) {
+				throw runtime_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
 			}
 			st.push(v);
-		} else if (inp == "POP") {
+		} else if (inp == "pop") {
 			if (st.size() == 0) {
-				throw runtime_error("POP from empty stack");
+				throw runtime_error("pop from empty stack");
 			}
 			st.pop();
-		} else if (inp == "PUSHR") {
-			if (current_command == commands_size) {
-				throw runtime_error("PUSHR: Expected input");
+		} else if (inp == "pushr") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
 			}
-			size_t r = atoi(commands[current_command++]);
-			if (r >= REG_SIZE) {
-				throw runtime_error("PUSHR: Register must be in [0, " + to_string(REG_SIZE) + "]");
+			size_t r = stoi(commands[current_command++]);
+			if (reg.size() < r + 1) {
+				reg.resize(r + 1);
 			}
 			st.push(reg[r]);
-		} else if (inp == "POPR") {
-			if (current_command == commands_size) {
-				throw runtime_error("POPR: Expected input");
+		} else if (inp == "popr") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
 			}
-			size_t r = atoi(commands[current_command++]);
-			if (r >= REG_SIZE) {
-				throw runtime_error("PUSHR: Register must be in [0, " + to_string(REG_SIZE) + "]");
+			size_t r = stoi(commands[current_command++]);
+			if (reg.size() < r + 1) {
+				reg.resize(r + 1);
 			}
 			if (st.size() == 0) {
-				throw runtime_error("POPR from empty stack");
+				throw runtime_error("popr from empty stack");
 			}
 			reg[r] = st.top();
 			st.pop();
-		} else if (inp == "ADD") {
+		} else if (inp == "add") {
 			if (st.size() < 2) {
-				throw runtime_error("ADD: Expected atleast 2 elements in stack");
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
 			LongDouble b, a;
 			b = st.top();
@@ -339,9 +386,9 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			st.push(a + b);
-		} else if (inp == "SUB") {
+		} else if (inp == "sub") {
 			if (st.size() < 2) {
-				throw runtime_error("SUB: Expected atleast 2 elements in stack");
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
 			LongDouble b, a;
 			b = st.top();
@@ -349,9 +396,9 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			st.push(a - b);
-		} else if (inp == "MUL") {
+		} else if (inp == "mul") {
 			if (st.size() < 2) {
-				throw runtime_error("MUL: Expected atleast 2 elements in stack");
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
 			LongDouble b, a;
 			b = st.top();
@@ -359,9 +406,9 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			st.push(a * b);
-		} else if (inp == "DIV") {
+		} else if (inp == "div") {
 			if (st.size() < 2) {
-				throw runtime_error("DIV: Expected atleast 2 elements in stack");
+				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
 			LongDouble b, a;
 			b = st.top();
@@ -369,7 +416,7 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			if (b.isZero()) {
-				throw runtime_error("DIV: Division by zero");
+				throw runtime_error(inp + ": division by zero");
 			}
 			a.set_precision(a.get_digits_size() + a.get_exponent());
 			auto res = a / b;
@@ -377,13 +424,13 @@ bool emulate(const char* filename) {
 			res.set_precision(INT_MAX);
 			res.floor();
 			st.push(res);
-		} else if (inp == "OUT") {
+		} else if (inp == "out") {
 			if (st.size() < 1) {
-				throw runtime_error("OUT: Expected atleast 1 element in stack");
+				throw runtime_error(inp + ": expected atleast 1 element in stack");
 			}
 			cout << st.top() << endl;
 			st.pop();
-		} else if (inp == "IN") {
+		} else if (inp == "in") {
 			string value;
 			cin >> value;
 			LongDouble v;
@@ -394,24 +441,19 @@ bool emulate(const char* filename) {
 				error = true;
 			}
 			if (error || !v.isInt()) {
-				throw runtime_error("IN: Wrong value format: " + value + ", expected: [-+][0-9]");
+				throw runtime_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
 			}
 			st.push(v);
 		} else {
-			throw runtime_error("Unexpected command " + inp);
+			throw runtime_error("unexpected command " + inp);
 		}
 	}
-	for (size_t i = 0; i < commands_size; i++) {
-		free(commands[i]);
-	}
-	free(commands);
-	delete[] reg;
 	if (was_begin) {
-		throw runtime_error("END command expected");
+		throw runtime_error("end command expected");
 	}
 	return 1;
 }
-// https://stackoverflow.com/questions/3840582/still-reachable-leak-detected-by-valgrind
+
 int main(int argc, char* argv[]) {
 
 	if (argc != 3 || !(argv[1] == string("compile") || argv[1] == string("emulate") || argv[1] == string("compulate"))) {

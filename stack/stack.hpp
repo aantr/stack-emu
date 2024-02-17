@@ -10,7 +10,7 @@ namespace stack_emu {
 	private:
 		size_t sz;
 		size_t capacity;
-		T* data;
+		T* data_;
 
 		void reserve_(size_t);
 		void resize_();
@@ -32,6 +32,7 @@ namespace stack_emu {
 		void pop();
 		void push(const T&);
 		T& top() const;
+		T* data() const;
 
 		bool operator==(const stack &other) const;
 		bool operator!=(const stack &other) const;

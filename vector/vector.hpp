@@ -10,7 +10,7 @@ namespace stack_emu {
 	private:
 		size_t sz;
 		size_t capacity;
-		T* data;
+		T* data_;
 
 		void reserve_(size_t);
 		void resize_();
@@ -36,6 +36,7 @@ namespace stack_emu {
 		T& front() const;
 		T& back() const;
 		T& operator[](size_t) const;
+		T* data() const;
 
 		bool operator==(const vector &other) const;
 		bool operator!=(const vector &other) const;
