@@ -153,7 +153,7 @@ namespace stack_emu {
 	void deque<T>::resize(size_t v) {
 		size_t prev_sz = sz;
 		reserve_(v);
-		for (auto i = begin + prev_sz; i < begin + sz; i++) {
+		for (size_t i = begin + prev_sz; i < begin + sz; i++) {
 			data[i] = T();
 		}
 	}
@@ -162,7 +162,7 @@ namespace stack_emu {
 	void deque<T>::resize(size_t v, const T& elem) {
 		size_t prev_sz = sz;
 		reserve_(v);
-		for (auto i = begin + prev_sz; i < begin + sz; i++) {
+		for (size_t i = begin + prev_sz; i < begin + sz; i++) {
 			data[i] = elem;
 		}
 	}
