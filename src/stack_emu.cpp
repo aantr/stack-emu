@@ -13,6 +13,10 @@ using namespace stack_emu;
 using namespace arithmetic;
 using namespace std;
 
+// #define DEBUG
+// #define USE_INT		
+#define PRECISION 16
+
 const string DELIMITER = "#";
 
 class compile_error: public exception {
@@ -38,8 +42,13 @@ bool compile(const char* filename, const char* dest) {
 	
 	// presets
 	string inp;
+	#ifdef USE_INT
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
+	#else
+	LongDouble::default_precision = PRECISION / LongDouble::base_exp + 1;
+	cout << setprecision(PRECISION);
+	#endif
 	stack_emu::vector<string> commands;
 	while (stream >> inp) { // read file
 		size_t idx = inp.find("//");
@@ -131,9 +140,15 @@ bool compile(const char* filename, const char* dest) {
 			} catch (const InitStringError &e) {
 				error = true;
 			}
+			#ifdef USE_INT
 			if (error || !v.isInt()) {
 				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
 			}
+			#else 
+			if (error) {
+				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9][.][0-9]");
+			}
+			#endif
 		} else if (inp == "pop") {
 
 		} else if (inp == "pushr") {
@@ -154,7 +169,13 @@ bool compile(const char* filename, const char* dest) {
 
 		} else if (inp == "div") {
 
-		} else if (inp == "out") {
+		}
+		#ifndef USE_INT
+		else if (inp == "sqrt") {
+
+		}
+		#endif
+		else if (inp == "out") {
 
 		} else if (inp == "in") {
 
@@ -215,8 +236,13 @@ bool emulate(const char* filename) {
 
 	string inp;
 	
+	#ifdef USE_INT
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
+	#else
+	LongDouble::default_precision = PRECISION / LongDouble::base_exp + 1;
+	cout << setprecision(PRECISION);
+	#endif
 
 	stack_emu::stack<LongDouble> st;
 	stack_emu::stack<size_t> call_st;
@@ -258,10 +284,10 @@ bool emulate(const char* filename) {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
+			auto b = st.top();
+			st.pop();
 			auto a = st.top();
 			st.pop();
-			auto b = st.top();
-			st.push(a);
 			bool statement = a == b;
 			if (statement) {
 				current_command = stoi(lab);
@@ -274,10 +300,10 @@ bool emulate(const char* filename) {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
+			auto b = st.top();
+			st.pop();
 			auto a = st.top();
 			st.pop();
-			auto b = st.top();
-			st.push(a);
 			bool statement = a != b;
 			if (statement) {
 				current_command = stoi(lab);
@@ -290,10 +316,10 @@ bool emulate(const char* filename) {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
+			auto b = st.top();
+			st.pop();
 			auto a = st.top();
 			st.pop();
-			auto b = st.top();
-			st.push(a);
 			bool statement = a > b;
 			if (statement) {
 				current_command = stoi(lab);
@@ -306,10 +332,10 @@ bool emulate(const char* filename) {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
+			auto b = st.top();
+			st.pop();
 			auto a = st.top();
 			st.pop();
-			auto b = st.top();
-			st.push(a);
 			bool statement = a >= b;
 			if (statement) {
 				current_command = stoi(lab);
@@ -322,10 +348,10 @@ bool emulate(const char* filename) {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
+			auto b = st.top();
+			st.pop();
 			auto a = st.top();
 			st.pop();
-			auto b = st.top();
-			st.push(a);
 			bool statement = a < b;
 			if (statement) {
 				current_command = stoi(lab);
@@ -338,10 +364,10 @@ bool emulate(const char* filename) {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
 			}
+			auto b = st.top();
+			st.pop();
 			auto a = st.top();
 			st.pop();
-			auto b = st.top();
-			st.push(a);
 			bool statement = a <= b;
 			if (statement) {
 				current_command = stoi(lab);
@@ -358,9 +384,15 @@ bool emulate(const char* filename) {
 			} catch (const InitStringError &e) {
 				error = true;
 			}
+			#ifdef USE_INT
 			if (error || !v.isInt()) {
-				throw runtime_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
+				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
 			}
+			#else 
+			if (error) {
+				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9][.][0-9]");
+			}
+			#endif
 			st.push(v);
 		} else if (inp == "pop") {
 			if (st.size() == 0) {
@@ -399,6 +431,9 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			st.push(a + b);
+			#ifdef DEBUG
+			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
+			#endif
 		} else if (inp == "sub") {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
@@ -409,6 +444,9 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			st.push(a - b);
+			#ifdef DEBUG
+			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
+			#endif
 		} else if (inp == "mul") {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
@@ -419,6 +457,9 @@ bool emulate(const char* filename) {
 			a = st.top();
 			st.pop();
 			st.push(a * b);
+			#ifdef DEBUG
+			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
+			#endif
 		} else if (inp == "div") {
 			if (st.size() < 2) {
 				throw runtime_error(inp + ": expected atleast 2 elements in stack");
@@ -431,13 +472,39 @@ bool emulate(const char* filename) {
 			if (b.isZero()) {
 				throw runtime_error(inp + ": division by zero");
 			}
+			#ifdef USE_INT
 			a.set_precision(a.get_digits_size() + a.get_exponent());
 			auto res = a / b;
 			a.set_precision(INT_MAX);
 			res.set_precision(INT_MAX);
 			res.floor();
+			#else
+			auto res = a / b;
+			#endif
 			st.push(res);
-		} else if (inp == "out") {
+			#ifdef DEBUG
+			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
+			#endif
+		}
+		#ifndef USE_INT
+		else if (inp == "sqrt") {
+			if (st.size() < 1) {
+				throw runtime_error(inp + ": expected atleast 1 element in stack");
+			}
+			LongDouble a;
+			a = st.top();
+			if (a < 0) {
+				throw runtime_error(inp + ": sqrt negative value");
+			}
+			st.pop();
+			a.sqrt();
+			st.push(a);
+			#ifdef DEBUG
+			cout << inp << " " << a << " res: " << st.top() << endl;
+			#endif
+		}
+		#endif
+		else if (inp == "out") {
 			if (st.size() < 1) {
 				throw runtime_error(inp + ": expected atleast 1 element in stack");
 			}
@@ -453,9 +520,15 @@ bool emulate(const char* filename) {
 			} catch (const InitStringError &e) {
 				error = true;
 			}
+			#ifdef USE_INT
 			if (error || !v.isInt()) {
-				throw runtime_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
+				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
 			}
+			#else 
+			if (error) {
+				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9][.][0-9]");
+			}
+			#endif
 			st.push(v);
 		} else if (inp == "call") {
 			if (current_command == commands.size()) {
