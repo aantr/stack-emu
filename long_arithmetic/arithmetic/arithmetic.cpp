@@ -424,6 +424,9 @@ namespace arithmetic {
         if (*this < 0) {
             sqrt_limit_error();
         }
+        if (*this == 0) {
+            return LongDouble(0, precision);
+        }
         LongDouble l, r = *this + 1;
         l.precision = precision;
         r.precision = precision;
