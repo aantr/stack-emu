@@ -6,7 +6,7 @@
 #include <string>
 #include <climits>
 #include <cstring>
-#include <vector>
+#include <vector.cpp>
 #include <algorithm>
 
 using namespace stack_emu;
@@ -40,14 +40,23 @@ bool compile(const char* filename, const char* dest) {
 	string inp;
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
-	vector<string> commands;
+	stack_emu::vector<string> commands;
 	while (stream >> inp) { // read file
-		commands.push_back(inp);
+		size_t idx = inp.find("//");
+		if (idx == std::string::npos) {
+			commands.push_back(inp);
+		} else {
+			if (idx) {
+				commands.push_back(inp.substr(0, idx));
+			}
+			getline(stream, inp);
+		}
 	}
+
 	stream.close();
 
-	vector<pair<string, size_t>> labels;
-	vector<pair<string, size_t>> registers;
+	stack_emu::vector<pair<string, size_t>> labels;
+	stack_emu::vector<pair<string, size_t>> registers;
 	auto get_label = [&](string label) -> size_t { // index or SIZE_MAX
 		size_t idx = lower_bound(labels.data(), labels.data() + labels.size(), 
 			pair<string, size_t>{label, 0}) - labels.data();
@@ -91,24 +100,14 @@ bool compile(const char* filename, const char* dest) {
 
 	// parse
 	size_t current_command = 0;
-	bool was_begin = false;
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),
     			[](unsigned char c){ return std::tolower(c); });
 		if (inp == "begin") {
-			if (was_begin) {
-				throw compile_error("double begin command");
-			}
-			was_begin = true;
+
 		} else if (inp == "end") {
-			if (!was_begin) {
-				throw compile_error("expected begin before end command");
-			}
-			was_begin = false;
-			break;
-		} else if (was_begin == false) {
-			throw compile_error("expected begin before " + inp);
+
 		} else if (inp.back() == ':') {
 
 		} else if (inp == "jmp" || inp == "jeq" || inp == "jnq" || inp == "ja" || inp == "jb" || inp == "jae" || inp == "jbe") {
@@ -157,8 +156,19 @@ bool compile(const char* filename, const char* dest) {
 
 		} else if (inp == "out") {
 
-		} else if (inp == "IN") {
+		} else if (inp == "in") {
 
+		} else if (inp == "ret") {
+
+		} else if (inp == "call") {
+			if (current_command == commands.size()) {
+				throw compile_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			if (get_label(lab) == SIZE_MAX) {
+				throw compile_error(inp + ": no such label " + lab);
+			}
+			commands[current_command - 1] = to_string(get_label(lab));
 		} else {
 			throw compile_error("unexpected command " + inp);
 		}
@@ -182,7 +192,7 @@ bool emulate(const char* filename) {
 	// run
 	// read bin
 
-	vector<string> commands;
+	stack_emu::vector<string> commands;
 	commands.push_back("");
 	ifstream stream(filename, ios::binary);
 	if (!stream.is_open()) {
@@ -208,8 +218,9 @@ bool emulate(const char* filename) {
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
 
-	stack<LongDouble> st;
-	vector<LongDouble> reg;
+	stack_emu::stack<LongDouble> st;
+	stack_emu::stack<size_t> call_st;
+	stack_emu::vector<LongDouble> reg;
 	size_t current_command = 0;
 	bool was_begin = false;
 
@@ -229,7 +240,8 @@ bool emulate(const char* filename) {
 			was_begin = false;
 			break;
 		} else if (was_begin == false) {
-			throw runtime_error("expected begin before " + inp);
+			// if begin is the first command ?
+			// throw runtime_error("expected begin before " + inp);
 		} else if (inp.back() == ':') {
 
 		} else if (inp == "jmp") {
@@ -445,6 +457,19 @@ bool emulate(const char* filename) {
 				throw runtime_error(inp + ": wrong value format: " + value + ", expected: [-+][0-9]");
 			}
 			st.push(v);
+		} else if (inp == "call") {
+			if (current_command == commands.size()) {
+				throw runtime_error(inp + ": expected input");
+			}
+			string lab = commands[current_command++];
+			call_st.push(current_command);
+			current_command = (size_t) stoi(lab);
+		} else if (inp == "ret") {
+			if (call_st.size() == 0) {
+				throw runtime_error("trying to return, but call stack is empty");
+			}
+			current_command = call_st.top();
+			call_st.pop();
 		} else {
 			throw runtime_error("unexpected command " + inp);
 		}
