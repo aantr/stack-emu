@@ -424,7 +424,7 @@ namespace arithmetic {
         if (*this < 0) {
             sqrt_limit_error();
         }
-        LongDouble l, r = *this;
+        LongDouble l, r = *this + 1;
         l.precision = precision;
         r.precision = precision;
         LongDouble prev = -1;
