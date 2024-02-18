@@ -1,5 +1,7 @@
 #include <test_system.hpp>
 
+#define TIME (double) clock() / CLOCKS_PER_SEC;
+
 namespace test_system {
 
 	Test::Test(string name, function<bool()> test): name(name), test(test) {
@@ -16,8 +18,9 @@ namespace test_system {
 			try {
 				os << YELLOW + "Test" + RESET + " \"" << test.name << "\" ... ";
 				os.flush();
+				double start = TIME;
 				test.test();
-				os << GREEN + "passed" + RESET << std::endl;
+				os << GREEN + "passed" + RESET << ", time: " << TIME - start << std::endl;
 			} catch (const char *str) {
 				os << RED + "failed" + RESET + ", expression: (" << str << ")\n";
 				os.flush();
