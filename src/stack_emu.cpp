@@ -251,21 +251,6 @@ bool emulate(const char* filename) {
 	bool was_begin = false;
 
 	while (current_command < commands.size()) {
-		cout << "reg: ";
-		for (auto i : reg) {
-			cout << i << " ";
-		}
-		cout << endl;
-		cout << "reg1: ";
-		for (size_t i = 0; i < reg.size(); i++) {
-			cout << reg[i] << " ";
-		}
-		cout << endl;
-		cout << "reg2: ";
-		for (auto i = reg.rbegin(); i != reg.rend(); i++) {
-			cout << *i << " ";
-		}
-		cout << endl;
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),
     			[](unsigned char c){ return std::tolower(c); });
