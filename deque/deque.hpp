@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <iterators.cpp>
 
 namespace stack_emu {
 	using namespace std;
@@ -19,6 +20,18 @@ namespace stack_emu {
 		void reserve_pop_front_();
 
 	public:
+		typedef T* pointer;
+		typedef const T* const_pointer;
+		typedef T& reference;
+		typedef const T& const_reference;
+		typedef int difference_type;
+		typedef size_t size_type;
+		typedef T value_type;
+		typedef ra_iterator<T> iterator;
+    	typedef ra_iterator<const T> const_iterator;
+    	typedef ra_reverse_iterator<T> reverse_iterator;
+    	typedef ra_reverse_iterator<const T> const_reverse_iterator;
+
 		deque();
 		deque(unsigned int sz);
 		deque(unsigned int sz, const T&);
@@ -42,6 +55,16 @@ namespace stack_emu {
 		T& back() const;
 		T& operator[](size_t) const;
 		T* data() const;
+
+		iterator begin();
+		iterator end();
+		const_iterator cbegin() const;
+		const_iterator cend() const;
+
+		reverse_iterator rbegin();
+		reverse_iterator rend();
+		const_reverse_iterator crbegin() const;
+		const_reverse_iterator crend() const;
 
 		bool operator==(const deque &other) const;
 		bool operator!=(const deque &other) const;

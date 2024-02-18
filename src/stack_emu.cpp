@@ -99,8 +99,8 @@ bool compile(const char* filename, const char* dest) {
 			if (get_register(commands[i + 1]) != SIZE_MAX) {
 				commands[i + 1] = to_string(get_register(commands[i + 1]));
 			} else {
-				registers.push_back({commands[i + 1], i + 2});
-				commands[i + 1] = to_string(i + 2);
+				registers.push_back({commands[i + 1], registers.size()});
+				commands[i + 1] = to_string(registers.size() - 1);
 			}
 		}
 	}
@@ -251,6 +251,21 @@ bool emulate(const char* filename) {
 	bool was_begin = false;
 
 	while (current_command < commands.size()) {
+		cout << "reg: ";
+		for (auto i : reg) {
+			cout << i << " ";
+		}
+		cout << endl;
+		cout << "reg1: ";
+		for (size_t i = 0; i < reg.size(); i++) {
+			cout << reg[i] << " ";
+		}
+		cout << endl;
+		cout << "reg2: ";
+		for (auto i = reg.rbegin(); i != reg.rend(); i++) {
+			cout << *i << " ";
+		}
+		cout << endl;
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),
     			[](unsigned char c){ return std::tolower(c); });

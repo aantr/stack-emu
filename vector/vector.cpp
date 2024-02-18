@@ -193,6 +193,46 @@ namespace stack_emu {
 	}
 
 	template<class T>
+	typename vector<T>::iterator vector<T>::begin() {
+		return iterator(data_);
+	}
+
+	template<class T>
+	typename vector<T>::iterator vector<T>::end() {
+		return iterator(data_ + sz);
+	}
+
+	template<class T>
+	typename vector<T>::const_iterator vector<T>::cbegin() const {
+		return const_iterator(data_);
+	}
+
+	template<class T>
+	typename vector<T>::const_iterator vector<T>::cend() const {
+		return const_iterator(data_ + sz);
+	}
+
+	template<class T>
+	typename vector<T>::reverse_iterator vector<T>::rbegin() {
+		return reverse_iterator(data_ + sz - 1);
+	}
+
+	template<class T>
+	typename vector<T>::reverse_iterator vector<T>::rend() {
+		return reverse_iterator(data_ - 1);
+	}
+
+	template<class T>
+	typename vector<T>::const_reverse_iterator vector<T>::crbegin() const {
+		return const_reverse_iterator(data_ + sz - 1);
+	}
+
+	template<class T>
+	typename vector<T>::const_reverse_iterator vector<T>::crend() const {
+		return const_reverse_iterator(data_ - 1);
+	}
+
+	template<class T>
 	bool vector<T>::operator==(const vector &other) const {		
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;

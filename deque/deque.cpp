@@ -229,6 +229,46 @@ namespace stack_emu {
 	}
 
 	template<class T>
+	typename deque<T>::iterator deque<T>::begin() {
+		return iterator(data_);
+	}
+
+	template<class T>
+	typename deque<T>::iterator deque<T>::end() {
+		return iterator(data_ + sz);
+	}
+
+	template<class T>
+	typename deque<T>::const_iterator deque<T>::cbegin() const {
+		return const_iterator(data_);
+	}
+
+	template<class T>
+	typename deque<T>::const_iterator deque<T>::cend() const {
+		return const_iterator(data_ + sz);
+	}
+
+	template<class T>
+	typename deque<T>::reverse_iterator deque<T>::rbegin() {
+		return reverse_iterator(data_ + sz - 1);
+	}
+
+	template<class T>
+	typename deque<T>::reverse_iterator deque<T>::rend() {
+		return reverse_iterator(data_ - 1);
+	}
+
+	template<class T>
+	typename deque<T>::const_reverse_iterator deque<T>::crbegin() const {
+		return const_reverse_iterator(data_ + sz - 1);
+	}
+
+	template<class T>
+	typename deque<T>::const_reverse_iterator deque<T>::crend() const {
+		return const_reverse_iterator(data_ - 1);
+	}
+
+	template<class T>
 	bool deque<T>::operator==(const deque &other) const {		
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;

@@ -28,8 +28,7 @@ INCLUDES =  src/stack_emu.cpp \
 			deque/deque.cpp \
 			test/test.cpp \
 			test/test_system.hpp \
-			common /
-
+			common/ \
 
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
@@ -45,6 +44,7 @@ SOURCES = \
 	stack/stack.cpp \
 	vector/vector.cpp \
 	deque/deque.cpp \
+	common/iterators.cpp \
 	test/test_system.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
@@ -66,6 +66,7 @@ EXECUTABLE_TEST = build/test.o
 build/%.o: %.cpp $(INCLUDES)
 	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
 	@mkdir -p build/src
+	@mkdir -p build/common
 	@mkdir -p build/stack
 	@mkdir -p build/vector
 	@mkdir -p build/deque
