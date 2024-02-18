@@ -3,10 +3,14 @@
 #include <stack.hpp>
 #include <vector.hpp>
 #include <deque.hpp>
+#include <deque>
+#include <vector>
+#include <arithmetic.hpp>
 
 // using namespace std;
 using namespace stack_emu;
 using namespace test_system;
+using namespace arithmetic;
 
 // test system init && add define
 TestSystem ts;
@@ -17,12 +21,12 @@ void add_tests() {
 
 TEST_ (Init)
 
-	stack<int> s; // empty
-	stack<int> s1(5); // 5 zeroes
+	stack_emu::stack<int> s; // empty
+	stack_emu::stack<int> s1(5); // 5 zeroes
 	// for (int i = 0; i < 5; i++) {
 	// 	s1.push(0);
 	// }
-	stack<int> s2(5, 5); // 5 fives
+	stack_emu::stack<int> s2(5, 5); // 5 fives
 	// for (int i = 0; i < 5; i++) {
 	// 	s2.push(5);
 	// }
@@ -41,9 +45,9 @@ _TEST
 
 TEST_ (PushPop)
 
-	stack<int> s; // empty
-	stack<int> s1(5); // 5 zeroes
-	stack<int> s2(5, 5); // 5 fives
+	stack_emu::stack<int> s; // empty
+	stack_emu::stack<int> s1(5); // 5 zeroes
+	stack_emu::stack<int> s2(5, 5); // 5 fives
 	for (int i = 0; i < 5; i++) {
 		s.push(i + 1);
 
@@ -68,9 +72,9 @@ _TEST
 
 TEST_ (Equality)
 
-	stack<int> s; // empty
-	stack<int> s1(5); // 5 zeroes
-	stack<int> s2(5, 5); // 5 fives
+	stack_emu::stack<int> s; // empty
+	stack_emu::stack<int> s1(5); // 5 zeroes
+	stack_emu::stack<int> s2(5, 5); // 5 fives
 	ASSERT(s != s2);
 	for (int i = 0; i < 5; i++) {
 		s.push(0);
@@ -90,13 +94,13 @@ _TEST
 
 TEST_ (FiveRule)
 
-	stack<int> s; // empty
-	stack<int> s1(5); // 5 zeroes
-	stack<int> s2(5, 5); // 5 fives
-	stack<int> s3 = s2; // copy
+	stack_emu::stack<int> s; // empty
+	stack_emu::stack<int> s1(5); // 5 zeroes
+	stack_emu::stack<int> s2(5, 5); // 5 fives
+	auto s3 = s2; // copy
 	ASSERT(s3 == s2);
 
-	stack<int> s4{std::move(s3)};
+	stack_emu::stack<int> s4{std::move(s3)};
 	ASSERT(s4 == s2); // move
 	ASSERT(s2 != s3); // move effect
 
@@ -148,18 +152,18 @@ _TEST
 
 TEST_ (deque)
 
-	deque<int> s; // empty
-	deque<int> s1(5); // 5 zeroes
-	deque<int> s2(5, 5); // 5 fives
+	stack_emu::deque<int> s; // empty
+	stack_emu::deque<int> s1(5); // 5 zeroes
+	stack_emu::deque<int> s2(5, 5); // 5 fives
 	for (int i = 0; i < 5; i++) {
 		s2[i]--;
 		ASSERT(s2[i] == 4);
 	}
-	deque<int> s3 = s2; // copy
+	stack_emu::deque<int> s3 = s2; // copy
 
 	ASSERT(s3 == s2);
 
-	deque<int> s4{std::move(s3)};
+	stack_emu::deque<int> s4{std::move(s3)};
 	ASSERT(s4 == s2); // move
 	ASSERT(s2 != s3); // move effect
 
@@ -178,7 +182,7 @@ TEST_ (deque)
 		s1.pop_front();
 	}
 
-	s2 = deque<int>(5, 5); // 5 fives
+	s2 = stack_emu::deque<int>(5, 5); // 5 fives
 
 	for (int i = 0; i < 5; i++) {
 		s2[i]-=i;
@@ -189,6 +193,63 @@ TEST_ (deque)
 	sort(s2.rbegin(), s2.rend());
 
 	ASSERT(s2 == rs);
+
+_TEST
+
+#include <deque>
+
+TEST_ (SpeedTestStdDeque) 
+
+	using ti = std::deque<int>;
+	using tl = std::deque<LongDouble>;
+
+	ti a(10000000, 0);
+	ti b;
+	for (int i = 0; i < 10000000; i++) {
+		b.push_back(i);
+	}
+	for (int i = 1; i < 10000000; i++) {
+		b[i] += b[i - 1];
+		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
+	}
+
+	tl c(10000000, 0);
+	tl d;
+	for (int i = 0; i < 10000000; i++) {
+		d.push_back(i);
+	}
+	for (int i = 1; i < 10000000; i++) {
+		d[i] += d[i - 1];
+		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
+	}
+
+
+_TEST
+
+TEST_ (SpeedTestMyDeque) 
+
+	using ti = stack_emu::deque<int>;
+	using tl = stack_emu::deque<LongDouble>;
+
+	ti a(10000000, 0);
+	ti b;
+	for (int i = 0; i < 10000000; i++) {
+		b.push_back(i);
+	}
+	for (int i = 1; i < 10000000; i++) {
+		b[i] += b[i - 1];
+		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
+	}
+
+	tl c(10000000, 0);
+	tl d;
+	for (int i = 0; i < 10000000; i++) {
+		d.push_back(i);
+	}
+	for (int i = 1; i < 10000000; i++) {
+		d[i] += d[i - 1];
+		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
+	}
 
 _TEST
 
