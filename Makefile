@@ -21,14 +21,11 @@ INCLUDES =  src/stack_emu.cpp \
 			long_arithmetic/arithmetic/arithmetic.hpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
-			stack/stack.cpp \
 			vector/vector.hpp \
-			vector/vector.cpp \
 			deque/deque.hpp \
-			deque/deque.cpp \
 			test/test.cpp \
 			test/test_system.hpp \
-			common/ \
+			common/iterators.hpp \
 
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
@@ -41,10 +38,6 @@ CFLAGS += -I $(abspath include) \
 
 # what needs to be compiled
 SOURCES = \
-	stack/stack.cpp \
-	vector/vector.cpp \
-	deque/deque.cpp \
-	common/iterators.cpp \
 	test/test_system.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \

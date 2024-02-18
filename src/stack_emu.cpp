@@ -1,4 +1,4 @@
-#include <stack.cpp>
+#include <stack.hpp>
 #include <arithmetic.hpp>
 #include <iostream>
 #include <iomanip>
@@ -6,7 +6,7 @@
 #include <string>
 #include <climits>
 #include <cstring>
-#include <vector.cpp>
+#include <vector.hpp>
 #include <algorithm>
 
 using namespace stack_emu;

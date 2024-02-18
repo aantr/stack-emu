@@ -1,8 +1,8 @@
 #include <iostream>
 #include <test_system.hpp>
-#include <stack.cpp>
-#include <vector.cpp>
-#include <deque.cpp>
+#include <stack.hpp>
+#include <vector.hpp>
+#include <deque.hpp>
 
 // using namespace std;
 using namespace stack_emu;
@@ -127,6 +127,24 @@ TEST_ (VectorFiveRule)
 
 _TEST
 
+TEST_ (Vector)
+
+	stack_emu::vector<int> s; // empty
+	stack_emu::vector<int> s1(5); // 5 zeroes
+	stack_emu::vector<int> s2(5, 5); // 5 fives
+	for (int i = 0; i < 5; i++) {
+		s2[i]-=i;
+	}
+	sort(s2.begin(), s2.end());
+	auto rs = s2;
+	reverse(rs.begin(), rs.end());
+	sort(s2.rbegin(), s2.rend());
+
+	ASSERT(s2 == rs);
+
+
+_TEST
+
 
 TEST_ (deque)
 
@@ -160,8 +178,17 @@ TEST_ (deque)
 		s1.pop_front();
 	}
 
+	s2 = deque<int>(5, 5); // 5 fives
 
+	for (int i = 0; i < 5; i++) {
+		s2[i]-=i;
+	}
+	sort(s2.begin(), s2.end());
+	auto rs = s2;
+	reverse(rs.begin(), rs.end());
+	sort(s2.rbegin(), s2.rend());
 
+	ASSERT(s2 == rs);
 
 _TEST
 
