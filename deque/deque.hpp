@@ -83,13 +83,13 @@ namespace stack_emu {
 	template <class T>
 	void deque<T>::reserve_push_front_() { // makes accessable begin_ - 1
 		if (begin_ == 0) {
-			resize_(sz);
+			resize_(max((size_t) 1u, sz));
 		}
 	}
 
 	template <class T>
 	void deque<T>::reserve_pop_front_() { // resize_ if needed
-		if (sz * 3 <= (capacity >> 1)) {
+		if (sz * 2 + 2 <= (capacity >> 1)) {
 			resize_(sz);
 		}
 	}
@@ -97,7 +97,7 @@ namespace stack_emu {
 	// go to the right
 	template <class T>
 	void deque<T>::reserve_(size_t v) { // makes accessable up to begin_ + v
-		if (begin_ + v >= capacity || v * 3 <= (capacity >> 1)) { // increase or decrease
+		if (begin_ + v >= capacity || v * 2 + 2 <= (capacity >> 1)) { // increase or decrease
 			resize_(v);
 		}
 		sz = v;
@@ -108,21 +108,14 @@ namespace stack_emu {
 	*/
 	template <class T>	
 	void deque<T>::resize_(size_t v) {
-		capacity = v * 3;
+		capacity = v * 2 + 2;
+		size_t b = v / 2 + 1;
 		T* temp = new T[capacity];
 		size_t j = min(sz, v);
-        for (size_t i = v; i < v + j; i++) {
-            temp[i] = data_[i - v + begin_];
-        }
-        for (size_t i = 0; i < v; i++) {
-            temp[i] = T();
-        }
-        for (size_t i = v + j; i < capacity; i++) {
-            temp[i] = T();
-        }
+        copy(data_ + begin_, data_ + begin_ + j, temp + b);
         delete[] data_;
         data_ = temp;
-        begin_ = v;
+        begin_ = b;
 	}
 
 	template <class T>

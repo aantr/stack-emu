@@ -98,12 +98,7 @@ namespace stack_emu {
 	void vector<T>::resize_() {
 		T* temp = new T[capacity];
 		size_t j = min(sz, capacity);
-        for (size_t i = 0; i < j; i++) {
-            temp[i] = data_[i];
-        }
-        for (size_t i = j; i < capacity; i++) {
-            temp[i] = T();
-        }
+        copy(data_, data_ + j, temp);
         delete[] data_;
         data_ = temp;
 	}

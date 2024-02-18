@@ -7,7 +7,7 @@
 using namespace std;
 
 #define ASSERT(x) if (!(x)) {throw #x;}
-#define TEST_(x) TEST_SYSTEM.add_test(Test(string(#x), []() -> bool {
+#define TEST_(x) TEST_SYSTEM.add_test(Test(string(#x), [&]() -> bool {
 #define _TEST return 0;}));
 #define TEST_SYSTEM test_system
 

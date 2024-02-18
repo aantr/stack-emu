@@ -1,6 +1,6 @@
 #include <test_system.hpp>
 
-#define TIME (double) clock() / CLOCKS_PER_SEC;
+#define TIME (double) clock() / CLOCKS_PER_SEC
 
 namespace test_system {
 
@@ -20,7 +20,7 @@ namespace test_system {
 				os.flush();
 				double start = TIME;
 				test.test();
-				os << GREEN + "passed" + RESET << ", time: " << TIME - start << std::endl;
+				os << GREEN + "passed" + RESET << ", time: " << (TIME - start) << std::endl;
 			} catch (const char *str) {
 				os << RED + "failed" + RESET + ", expression: (" << str << ")\n";
 				os.flush();

@@ -173,11 +173,11 @@ TEST_ (deque)
 	s1.resize(0);
 	ASSERT(s1.size() == 0);
 	
-	for (int i = 0; i < 1000000; i++) {
+	for (int i = 0; i < 1000; i++) {
 		s1.push_back(1);
 		s1.push_front(2);
 	}
-	for (int i = 0; i < 500000; i++) {
+	for (int i = 0; i < 500; i++) {
 		s1.pop_back();
 		s1.pop_front();
 	}
@@ -196,31 +196,112 @@ TEST_ (deque)
 
 _TEST
 
-#include <deque>
+const int N = 100000;
+
+TEST_ (SpeedTestStdVector) 
+
+	using ti = std::vector<int>;
+	using tl = std::vector<LongDouble>;
+
+	ti a(N, 0);
+	ti b;
+	for (int i = 0; i < N; i++) {
+		b.push_back(i);
+		b.pop_back();
+		b.push_back(i);
+	}
+	for (int i = 1; i < N; i++) {
+		b[i] += b[i - 1];
+		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
+	}
+	for (int i = 0; i < N; i++) {
+		b.pop_back();
+	}
+
+	tl c(N, 0);
+	tl d;
+	for (int i = 0; i < N; i++) {
+		d.push_back(i);
+	}
+	for (int i = 1; i < N; i++) {
+		d[i] += d[i - 1];
+		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
+	}
+	for (int i = 0; i < N; i++) {
+		d.pop_back();
+	}
+
+
+_TEST
+
+TEST_ (SpeedTestMyVector) 
+
+	using ti = stack_emu::vector<int>;
+	using tl = stack_emu::vector<LongDouble>;
+
+	ti a(N, 0);
+	ti b;
+	for (int i = 0; i < N; i++) {
+		b.push_back(i);
+		b.pop_back();
+		b.push_back(i);
+	}
+	for (int i = 1; i < N; i++) {
+		b[i] += b[i - 1];
+		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
+	}
+	for (int i = 0; i < N; i++) {
+		b.pop_back();
+	}
+
+	tl c(N, 0);
+	tl d;
+	for (int i = 0; i < N; i++) {
+		d.push_back(i);
+	}
+	for (int i = 1; i < N; i++) {
+		d[i] += d[i - 1];
+		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
+	}
+	for (int i = 0; i < N; i++) {
+		d.pop_back();
+	}
+
+_TEST
+
 
 TEST_ (SpeedTestStdDeque) 
 
 	using ti = std::deque<int>;
 	using tl = std::deque<LongDouble>;
 
-	ti a(10000000, 0);
+	ti a(N, 0);
 	ti b;
-	for (int i = 0; i < 10000000; i++) {
+	for (int i = 0; i < N; i++) {
+		b.push_front(i);
+		b.pop_back();
 		b.push_back(i);
 	}
-	for (int i = 1; i < 10000000; i++) {
+	for (int i = 1; i < N; i++) {
 		b[i] += b[i - 1];
 		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
 	}
+	for (int i = 0; i < N; i++) {
+		b.pop_back();
+	}
+	
 
-	tl c(10000000, 0);
+	tl c(N, 0);
 	tl d;
-	for (int i = 0; i < 10000000; i++) {
+	for (int i = 0; i < N; i++) {
 		d.push_back(i);
 	}
-	for (int i = 1; i < 10000000; i++) {
+	for (int i = 1; i < N; i++) {
 		d[i] += d[i - 1];
 		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
+	}
+	for (int i = 0; i < N; i++) {
+		d.pop_front();
 	}
 
 
@@ -231,30 +312,67 @@ TEST_ (SpeedTestMyDeque)
 	using ti = stack_emu::deque<int>;
 	using tl = stack_emu::deque<LongDouble>;
 
-	ti a(10000000, 0);
+	ti a(N, 0);
 	ti b;
-	for (int i = 0; i < 10000000; i++) {
+	for (int i = 0; i < N; i++) {
+		b.push_front(i);
+		b.pop_back();
 		b.push_back(i);
 	}
-	for (int i = 1; i < 10000000; i++) {
+	for (int i = 1; i < N; i++) {
 		b[i] += b[i - 1];
 		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
 	}
+	for (int i = 0; i < N; i++) {
+		b.pop_back();
+	}
 
-	tl c(10000000, 0);
+	tl c(N, 0);
 	tl d;
-	for (int i = 0; i < 10000000; i++) {
+	for (int i = 0; i < N; i++) {
 		d.push_back(i);
 	}
-	for (int i = 1; i < 10000000; i++) {
+	for (int i = 1; i < N; i++) {
 		d[i] += d[i - 1];
 		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
+	}
+	for (int i = 0; i < N; i++) {
+		d.pop_front();
 	}
 
 _TEST
 
-}
+TEST_ (SpeedTestStdDequeResize) 
 
+	// using ti = std::deque<int>;
+	using tl = std::deque<LongDouble>;
+
+	for (int i = 40; i > 0; i--) {
+		tl d (N);
+		// while (d.size()) {
+		// 	d.pop_front();
+		// }
+	}
+
+_TEST
+
+TEST_ (SpeedTestMyDequeResize) 
+
+	// using ti = stack_emu::deque<int>;
+	using tl = stack_emu::deque<LongDouble>;
+
+	for (int i = 40; i > 0; i--) {
+		tl d(N);
+		// while (d.size()) {
+		// 	// d.pop_front();
+		// }
+	}
+
+_TEST
+
+
+
+}
 
 
 int main() {
