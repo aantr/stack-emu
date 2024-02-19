@@ -199,35 +199,24 @@ _TEST
 
 const int N = 1000000;
 
-TEST_ (SpeedTestStdVector) 
+TEST_ (SpeedTestStdVectorPushBack	) 
 
 	using ti = std::vector<int>;
 	using tl = std::vector<LongDouble>;
 
-	ti a(N, 0);
-	ti b;
+	ti d(N, 0);
+	tl b;
 	for (int i = 0; i < N; i++) {
 		b.push_back(i);
-		b.pop_back();
 		b.push_back(i);
-	}
-	for (int i = 1; i < N; i++) {
-		b[i] += b[i - 1];
-		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
-	}
-	for (int i = 0; i < N; i++) {
-		b.pop_back();
+		b.push_back(i);
 	}
 
-	tl c(N, 0);
-	tl d;
+
 	for (int i = 0; i < N; i++) {
 		d.push_back(i);
 	}
-	for (int i = 1; i < N; i++) {
-		d[i] += d[i - 1];
-		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
-	}
+
 	for (int i = 0; i < N; i++) {
 		d.pop_back();
 	}
@@ -235,35 +224,25 @@ TEST_ (SpeedTestStdVector)
 
 _TEST
 
-TEST_ (SpeedTestMyVector) 
+TEST_ (SpeedTestMyVectorPushBack) 
 
-	using ti = stack_emu::vector_speed<int>;
-	using tl = stack_emu::vector_speed<LongDouble>;
+	using ti = stack_emu::vector<int>;
+	using tl = stack_emu::vector<LongDouble>;
 
-	ti a(N, 0);
-	ti b;
+
+	ti d(N, 0);
+	tl b;
 	for (int i = 0; i < N; i++) {
 		b.push_back(i);
-		b.pop_back();
+		b.push_back(i);
 		b.push_back(i);
 	}
-	for (int i = 1; i < N; i++) {
-		b[i] += b[i - 1];
-		if (b[i] > (int) 1e9) b[i] -= (int) 1e9;
-	}
-	for (int i = 0; i < N; i++) {
-		b.pop_back();
-	}
 
-	tl c(N, 0);
-	tl d;
+
 	for (int i = 0; i < N; i++) {
 		d.push_back(i);
 	}
-	for (int i = 1; i < N; i++) {
-		d[i] += d[i - 1];
-		if (d[i] > (int) 1e9) d[i] -= (int) 1e9;
-	}
+
 	for (int i = 0; i < N; i++) {
 		d.pop_back();
 	}
