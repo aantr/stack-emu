@@ -5,6 +5,7 @@
 #include <deque.hpp>
 #include <deque>
 #include <vector>
+#include <vector_speed.hpp>
 #include <arithmetic.hpp>
 
 // using namespace std;
@@ -196,7 +197,7 @@ TEST_ (deque)
 
 _TEST
 
-const int N = 100000;
+const int N = 1000000;
 
 TEST_ (SpeedTestStdVector) 
 
@@ -236,8 +237,8 @@ _TEST
 
 TEST_ (SpeedTestMyVector) 
 
-	using ti = stack_emu::vector<int>;
-	using tl = stack_emu::vector<LongDouble>;
+	using ti = stack_emu::vector_speed<int>;
+	using tl = stack_emu::vector_speed<LongDouble>;
 
 	ti a(N, 0);
 	ti b;

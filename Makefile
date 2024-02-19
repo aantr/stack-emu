@@ -22,6 +22,7 @@ INCLUDES =  src/stack_emu.cpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
 			vector/vector.hpp \
+			vector_speed/vector_speed.hpp \
 			deque/deque.hpp \
 			test/test.cpp \
 			test/test_system.hpp \
@@ -30,6 +31,7 @@ INCLUDES =  src/stack_emu.cpp \
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
 		-I $(abspath vector)  \
+		-I $(abspath vector_speed)  \
 		-I $(abspath deque)  \
 		-I $(abspath test) \
 		-I $(abspath long_arithmetic/arithmetic) \
@@ -62,6 +64,7 @@ build/%.o: %.cpp $(INCLUDES)
 	@mkdir -p build/common
 	@mkdir -p build/stack
 	@mkdir -p build/vector
+	@mkdir -p build/vector_speed
 	@mkdir -p build/deque
 	@mkdir -p build/test
 	@mkdir -p build/long_arithmetic/arithmetic
