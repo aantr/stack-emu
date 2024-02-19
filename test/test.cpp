@@ -5,7 +5,6 @@
 #include <deque.hpp>
 #include <deque>
 #include <vector>
-#include <vector_speed.hpp>
 #include <arithmetic.hpp>
 
 // using namespace std;
