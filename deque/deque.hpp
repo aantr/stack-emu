@@ -40,6 +40,7 @@ namespace stack_emu {
 		deque();
 		deque(unsigned int sz);
 		deque(unsigned int sz, const T&);
+		deque(initializer_list<T>);
 
 		deque(const deque &ohter); // copy
 		deque& operator=(const deque &other); // copy
@@ -63,11 +64,15 @@ namespace stack_emu {
 
 		iterator begin();
 		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
 		const_iterator cbegin() const;
 		const_iterator cend() const;
 
 		reverse_iterator rbegin();
 		reverse_iterator rend();
+		const_reverse_iterator rbegin() const;
+		const_reverse_iterator rend() const;
 		const_reverse_iterator crbegin() const;
 		const_reverse_iterator crend() const;
 
@@ -150,6 +155,21 @@ namespace stack_emu {
 		reserve_(sz_);
 		for (size_t i = 0; i < sz_; i++) {
 			data_[begin_ + i] = elem;
+		}
+	}
+
+	template <class T>
+	deque<T>::deque(initializer_list<T> list) {
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
+		sz = 0;
+		begin_ = 0;
+		capacity = 0;
+		data_ = new T[0];
+		reserve_(list.size());
+		auto it = list.begin();
+		for (size_t i = 0; i < list.size(); i++) {
+			data_[begin_ + i] = *it++;
 		}
 	}
 
@@ -306,6 +326,16 @@ namespace stack_emu {
 	}
 
 	template<class T>
+	typename deque<T>::const_iterator deque<T>::begin() const {
+		return const_iterator(data_ + begin_);
+	}
+
+	template<class T>
+	typename deque<T>::const_iterator deque<T>::end() const {
+		return const_iterator(data_ + begin_ + sz);
+	}
+
+	template<class T>
 	typename deque<T>::const_iterator deque<T>::cbegin() const {
 		return const_iterator(data_ + begin_);
 	}
@@ -323,6 +353,16 @@ namespace stack_emu {
 	template<class T>
 	typename deque<T>::reverse_iterator deque<T>::rend() {
 		return reverse_iterator(data_ + begin_ - 1);
+	}
+
+	template<class T>
+	typename deque<T>::const_reverse_iterator deque<T>::rbegin() const {
+		return const_reverse_iterator(data_ + begin_ + sz - 1);
+	}
+
+	template<class T>
+	typename deque<T>::const_reverse_iterator deque<T>::rend() const {
+		return const_reverse_iterator(data_ + begin_ - 1);
 	}
 
 	template<class T>
