@@ -264,10 +264,7 @@ bool stack_emu::emulate(const char* filename) {
 			CHECKV;
 			st.push(v);
 		} else if (inp == "call") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
+			GETLAB;
 			#ifdef USE_CALL_STACK
 			call_st.push(current_command);
 			#else
