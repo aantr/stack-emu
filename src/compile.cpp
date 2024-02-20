@@ -26,6 +26,18 @@ const char * stack_emu::compile_error::what() const noexcept {
 
 const stack_emu::vector<string> null_commands = {"begin", "end", "pop", "add", "sub", "mul", "div", "in", "out", "ret"};
 
+void check_register_name(const string& reg) {
+	if (!(reg.size() == 2 && reg[0] >= 'a' && reg[0] < 'a' + MAX_REGISTERS && reg[1] == 'x')) {
+		throw compile_error("register name should be ax or bx or cx, etc... up to " + to_string(MAX_REGISTERS));
+	}
+}
+
+void check_register_size(const stack_emu::vector<pair<string, size_t>>& registers) {
+	if (registers.size() > MAX_REGISTERS) {
+		compile_error("there are only " + to_string(MAX_REGISTERS) + " registers ");
+	}
+}
+
 bool stack_emu::compile(const char* filename, const char* dest) {
 
 	// open file
@@ -96,6 +108,8 @@ bool stack_emu::compile(const char* filename, const char* dest) {
 				commands[i + 1] = to_string(get_register(commands[i + 1]));
 			} else {
 				registers.push_back({commands[i + 1], registers.size()});
+				check_register_name(commands[i + 1]);
+				check_register_size(registers);
 				commands[i + 1] = to_string(registers.size() - 1);
 			}
 		}

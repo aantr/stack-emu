@@ -6,6 +6,7 @@
 #include <string>
 #include <climits>
 #include <cstring>
+#include <sstream>
 #include <vector.hpp>
 #include <algorithm>
 #include <stack_emu.hpp>
@@ -17,11 +18,64 @@ using std::string;
 using std::cin;
 using std::cout;
 
+#define GETLAB \
+if (current_command == commands.size()) { \
+	throw stack_emu::runtime_error(inp + ": expected input"); \
+} \
+std::string lab = commands[current_command++];
+
+#define GETVALUE \
+if (current_command == commands.size()) { \
+	throw stack_emu::runtime_error(inp + ": expected input"); \
+} \
+std::string value = commands[current_command++];
+
+#define GETAB \
+if (st.size() < 2) { \
+	throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack"); \
+} \
+LongDouble b, a; \
+b = st.top(); \
+st.pop(); \
+a = st.top(); \
+st.pop();
+
+#ifdef USE_INT
+#define CHECKV \
+bool error = false; \
+try { \
+	v = value; \
+} catch (const InitStringError &e) { \
+	error = true; \
+} \
+if (error) { \
+	throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+]?[0-9]*[.]?[0-9]*"); \
+}
+#else
+#define CHECKV \
+bool error = false; \
+try { \
+	v = value; \
+} catch (const InitStringError &e) { \
+	error = true; \
+} \
+if (error) { \
+	throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+]?[0-9]*[.]?[0-9]*"); \
+}
+#endif
+
 stack_emu::runtime_error::runtime_error(const std::string msg_): msg(msg_) {
 
 }
 const char * stack_emu::runtime_error::what() const noexcept {
     return msg.c_str();
+}
+
+size_t to_int(LongDouble v) {
+	assert(v.isInt() && v >= 0);
+	stringstream ss;
+	ss << v;
+	return stoi(ss.str());
 }
 
 bool stack_emu::emulate(const char* filename) {
@@ -49,8 +103,8 @@ bool stack_emu::emulate(const char* filename) {
 		commands.pop_back();
 	}
 
+	// preset
 	string inp;
-	
 	#ifdef USE_INT
 	LongDouble::default_precision = INT_MAX;
 	cout << setprecision(INT_MAX);
@@ -60,11 +114,14 @@ bool stack_emu::emulate(const char* filename) {
 	#endif
 
 	stack_emu::stack<LongDouble> st;
+	#ifdef USE_CALL_STACK
 	stack_emu::stack<size_t> call_st;
+	#endif
 	stack_emu::vector<LongDouble> reg;
 	size_t current_command = 0;
 	bool was_begin = false;
 
+	// emulaute
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),
@@ -86,128 +143,48 @@ bool stack_emu::emulate(const char* filename) {
 		} else if (inp.back() == ':') {
 
 		} else if (inp == "jmp") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
+			GETLAB;
 			current_command = stoi(lab);
 		} else if (inp == "jeq") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			auto b = st.top();
-			st.pop();
-			auto a = st.top();
-			st.pop();
+			GETLAB; GETAB;
 			bool statement = a == b;
 			if (statement) {
 				current_command = stoi(lab);
 			}
 		} else if (inp == "jne") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			auto b = st.top();
-			st.pop();
-			auto a = st.top();
-			st.pop();
+			GETLAB; GETAB;
 			bool statement = a != b;
 			if (statement) {
 				current_command = stoi(lab);
 			}
 		} else if (inp == "ja") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			auto b = st.top();
-			st.pop();
-			auto a = st.top();
-			st.pop();
+			GETLAB; GETAB;
 			bool statement = a > b;
 			if (statement) {
 				current_command = stoi(lab);
 			}
 		} else if (inp == "jae") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			auto b = st.top();
-			st.pop();
-			auto a = st.top();
-			st.pop();
+			GETLAB; GETAB;
 			bool statement = a >= b;
 			if (statement) {
 				current_command = stoi(lab);
 			}
 		} else if (inp == "jb") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			auto b = st.top();
-			st.pop();
-			auto a = st.top();
-			st.pop();
+			GETLAB; GETAB;
 			bool statement = a < b;
 			if (statement) {
 				current_command = stoi(lab);
 			}
 		} else if (inp == "jbe") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string lab = commands[current_command++];
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			auto b = st.top();
-			st.pop();
-			auto a = st.top();
-			st.pop();
+			GETLAB; GETAB;
 			bool statement = a <= b;
 			if (statement) {
 				current_command = stoi(lab);
 			}
 		} else if (inp == "push") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			string value = commands[current_command++];
+			GETVALUE;
 			LongDouble v;
-			bool error = false;
-			try {
-				v = value;
-			} catch (const InitStringError &e) {
-				error = true;
-			}
-			#ifdef USE_INT
-			if (error || !v.isInt()) {
-				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+]?[0-9]*");
-			}
-			#else 
-			if (error) {
-				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+]?[0-9]*[.]?[0-9]*");
-			}
-			#endif
+			CHECKV;
 			st.push(v);
 		} else if (inp == "pop") {
 			if (st.size() == 0) {
@@ -215,19 +192,15 @@ bool stack_emu::emulate(const char* filename) {
 			}
 			st.pop();
 		} else if (inp == "pushr") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			size_t r = stoi(commands[current_command++]);
+			GETLAB;
+			size_t r = stoi(lab);
 			if (reg.size() < r + 1) {
 				reg.resize(r + 1);
 			}
 			st.push(reg[r]);
 		} else if (inp == "popr") {
-			if (current_command == commands.size()) {
-				throw stack_emu::runtime_error(inp + ": expected input");
-			}
-			size_t r = stoi(commands[current_command++]);
+			GETLAB;
+			size_t r = stoi(lab);
 			if (reg.size() < r + 1) {
 				reg.resize(r + 1);
 			}
@@ -237,53 +210,16 @@ bool stack_emu::emulate(const char* filename) {
 			reg[r] = st.top();
 			st.pop();
 		} else if (inp == "add") {
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			LongDouble b, a;
-			b = st.top();
-			st.pop();
-			a = st.top();
-			st.pop();
+			GETAB;
 			st.push(a + b);
-			#ifdef DEBUG
-			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
-			#endif
 		} else if (inp == "sub") {
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			LongDouble b, a;
-			b = st.top();
-			st.pop();
-			a = st.top();
-			st.pop();
+			GETAB;
 			st.push(a - b);
-			#ifdef DEBUG
-			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
-			#endif
 		} else if (inp == "mul") {
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			LongDouble b, a;
-			b = st.top();
-			st.pop();
-			a = st.top();
-			st.pop();
+			GETAB;
 			st.push(a * b);
-			#ifdef DEBUG
-			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
-			#endif
 		} else if (inp == "div") {
-			if (st.size() < 2) {
-				throw stack_emu::runtime_error(inp + ": expected atleast 2 elements in stack");
-			}
-			LongDouble b, a;
-			b = st.top();
-			st.pop();
-			a = st.top();
-			st.pop();
+			GETAB;
 			if (b.isZero()) {
 				throw stack_emu::runtime_error(inp + ": division by zero");
 			}
@@ -297,17 +233,13 @@ bool stack_emu::emulate(const char* filename) {
 			auto res = a / b;
 			#endif
 			st.push(res);
-			#ifdef DEBUG
-			cout << inp << " " << a << " " << b << " res: " << st.top() << endl;
-			#endif
 		}
 		#ifndef USE_INT
 		else if (inp == "sqrt") {
 			if (st.size() < 1) {
 				throw stack_emu::runtime_error(inp + ": expected atleast 1 element in stack");
 			}
-			LongDouble a;
-			a = st.top();
+			LongDouble a = st.top();
 			if (a < 0) {
 				throw stack_emu::runtime_error(inp + ": sqrt negative value");
 			}
@@ -329,35 +261,34 @@ bool stack_emu::emulate(const char* filename) {
 			string value;
 			cin >> value;
 			LongDouble v;
-			bool error = false;
-			try {
-				v = value;
-			} catch (const InitStringError &e) {
-				error = true;
-			}
-			#ifdef USE_INT
-			if (error || !v.isInt()) {
-				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+]?[0-9]*");
-			}
-			#else 
-			if (error) {
-				throw compile_error(inp + ": wrong value format: " + value + ", expected: [-+]?[0-9]*[.]?[0-9]*");
-			}
-			#endif
+			CHECKV;
 			st.push(v);
 		} else if (inp == "call") {
 			if (current_command == commands.size()) {
 				throw stack_emu::runtime_error(inp + ": expected input");
 			}
 			string lab = commands[current_command++];
+			#ifdef USE_CALL_STACK
 			call_st.push(current_command);
+			#else
+			st.push(LongDouble((uint64_t) current_command));
+			#endif
 			current_command = (size_t) stoi(lab);
 		} else if (inp == "ret") {
+			#ifdef USE_CALL_STACK
 			if (call_st.size() == 0) {
 				throw stack_emu::runtime_error("trying to return, but call stack is empty");
 			}
 			current_command = call_st.top();
 			call_st.pop();
+			#else
+			if (st.size() == 0) {
+				throw stack_emu::runtime_error("trying to return, but stack is empty");
+			}
+			LongDouble top = st.top();
+			current_command = (size_t) to_int(st.top());
+			st.pop();
+			#endif
 		} else {
 			throw stack_emu::runtime_error("unexpected command " + inp);
 		}

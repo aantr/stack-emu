@@ -3,6 +3,8 @@
 // #define DEBUG
 // #define USE_INT		
 #define PRECISION 16
+#define MAX_REGISTERS 8
+#define USE_CALL_STACK
 
 namespace stack_emu {
 
