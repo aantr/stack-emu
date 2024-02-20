@@ -17,7 +17,10 @@ BCYAN   = \033[1;36m
 RESET   = \033[0m
 
 # project dependencies	
-INCLUDES =  src/stack_emu.cpp \
+INCLUDES =  src/stack_emu.hpp \
+			src/compile.cpp \
+			src/emulate.cpp \
+			src/stack_emu.cpp \
 			long_arithmetic/arithmetic/arithmetic.hpp \
 			long_arithmetic/fft/fft.hpp \
 			stack/stack.hpp \
@@ -29,6 +32,7 @@ INCLUDES =  src/stack_emu.cpp \
 
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
+		-I $(abspath src)  \
 		-I $(abspath vector)  \
 		-I $(abspath deque)  \
 		-I $(abspath test) \
@@ -39,6 +43,8 @@ CFLAGS += -I $(abspath include) \
 # what needs to be compiled
 SOURCES = \
 	test/test_system.cpp \
+	src/compile.cpp \
+	src/emulate.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
 	long_arithmetic/fft/fft.cpp
