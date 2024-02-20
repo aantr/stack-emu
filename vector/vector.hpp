@@ -8,7 +8,6 @@
 #include <cstring>
 
 namespace stack_emu {
-	using namespace std;
 
 	template<class T>
 	class vector {
@@ -36,6 +35,7 @@ namespace stack_emu {
 		vector();
 		vector(unsigned int sz);
 		vector(unsigned int sz, const T&);
+		vector(initializer_list<T>);
 
 		vector(const vector &ohter); // copy
 		vector& operator=(const vector &other); // copy
@@ -57,11 +57,15 @@ namespace stack_emu {
 
 		iterator begin();
 		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
 		const_iterator cbegin() const;
 		const_iterator cend() const;
 
 		reverse_iterator rbegin();
 		reverse_iterator rend();
+		const_reverse_iterator rbegin() const;
+		const_reverse_iterator rend() const;
 		const_reverse_iterator crbegin() const;
 		const_reverse_iterator crend() const;
 
@@ -132,6 +136,20 @@ namespace stack_emu {
 		reserve_(sz_);
 		for (size_t i = 0; i < sz_; i++) {
 			data_[i] = elem;
+		}
+	}
+
+	template <class T>
+	vector<T>::vector(initializer_list<T> list) {
+		static_assert(is_constructible<T>::value, "is_constructible");
+		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
+		sz = 0;
+		capacity = 0;
+		data_ = new T[0];
+		reserve_(list.size());
+		auto it = list.begin();
+		for (size_t i = 0; i < list.size(); i++) {
+			data_[i] = *it++;
 		}
 	}
 
@@ -266,6 +284,16 @@ namespace stack_emu {
 	}
 
 	template<class T>
+	typename vector<T>::const_iterator vector<T>::begin() const {
+		return const_iterator(data_);
+	}
+
+	template<class T>
+	typename vector<T>::const_iterator vector<T>::end() const {
+		return const_iterator(data_ + sz);
+	}
+
+	template<class T>
 	typename vector<T>::const_iterator vector<T>::cbegin() const {
 		return const_iterator(data_);
 	}
@@ -282,6 +310,16 @@ namespace stack_emu {
 
 	template<class T>
 	typename vector<T>::reverse_iterator vector<T>::rend() {
+		return reverse_iterator(data_ - 1);
+	}
+
+	template<class T>
+	typename vector<T>::const_reverse_iterator vector<T>::rbegin() const {
+		return reverse_iterator(data_ + sz - 1);
+	}
+
+	template<class T>
+	typename vector<T>::const_reverse_iterator vector<T>::rend() const {
 		return reverse_iterator(data_ - 1);
 	}
 
