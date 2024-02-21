@@ -27,9 +27,11 @@ const char * stack_emu::compile_error::what() const noexcept {
 const stack_emu::vector<string> null_commands = {"begin", "end", "pop", "add", "sub", "mul", "div", "in", "out", "ret"};
 
 void check_register_name(const string& reg) {
+	#ifdef CHECK_REGISTER_NAME
 	if (!(reg.size() == 2 && reg[0] >= 'a' && reg[0] < 'a' + MAX_REGISTERS && reg[1] == 'x')) {
 		throw compile_error("register name should be ax or bx or cx, etc... up to " + to_string(MAX_REGISTERS));
 	}
+	#endif
 }
 
 void check_register_size(const stack_emu::vector<pair<string, size_t>>& registers) {

@@ -224,7 +224,7 @@ bool stack_emu::emulate(const char* filename) {
 				throw stack_emu::runtime_error(inp + ": division by zero");
 			}
 			#ifdef USE_INT
-			a.set_precision(a.get_digits_size() + a.get_exponent());
+			a.set_precision(1 + a.get_digits_size() / a.base + a.get_exponent());
 			auto res = a / b;
 			a.set_precision(INT_MAX);
 			res.set_precision(INT_MAX);
