@@ -45,9 +45,10 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 COMPILE.cpp = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
 $(BUILD_DIR)/%.o: %.cpp $(DEPDIR)/%.d | $(DEPDIR)
+	@mkdir -p `echo $(DEPDIR)/%.o | cut -b -\`expr \\\`echo $(DEPDIR)/%.o | awk '{print length}'\\\` - \\\`echo $(DEPDIR)/%.o | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
 	@mkdir -p `echo $@ | cut -b -\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
-$(BUILD_DIR)/%.o: %.cpp $(DEPDIR)
+$(BUILD_DIR)/%.o: %.cpp
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
 $(DEPDIR): ; @mkdir -p $@
