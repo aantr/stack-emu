@@ -195,6 +195,8 @@ TEST_ (deque)
 
 _TEST
 
+}
+
 int main() {
 	add_tests();
 	ts.run_testing(std::cout);
