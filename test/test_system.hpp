@@ -15,9 +15,9 @@ using namespace std;
 const string BRED    = "\033[1;31m";
 const string BGREEN  = "\033[1;32m";
 const string BYELLOW = "\033[1;33m";
-const string RED    = "\033[38;5;202m";
+const string RED     = "\033[38;5;202m";
 const string GREEN   = "\033[38;5;192m";
-const string YELLOW = "\033[38;5;230m";
+const string YELLOW  = "\033[38;5;230m";
 const string BCYAN   = "\033[1;36m";
 const string RESET   = "\033[0m";
 

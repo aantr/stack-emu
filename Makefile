@@ -1,3 +1,5 @@
+BUILD_DIR = build
+
 CC = g++
 
 CFLAGS += \
@@ -9,8 +11,7 @@ CFLAGS += \
 
 LDFLAGS +=
 
-CFLAGS += -I $(abspath include) \
-		-I $(abspath stack)  \
+CFLAGS += -I $(abspath stack)  \
 		-I $(abspath src)  \
 		-I $(abspath vector)  \
 		-I $(abspath deque)  \
@@ -26,43 +27,45 @@ SOURCES = \
 	src/emulate.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
-	long_arithmetic/fft/fft.cpp
+	long_arithmetic/fft/fft.cpp \
 
 
-# related to commands
-SOURCE_EXECUTABLE = stack_emu.cpp
-SOURCE_TEST = test.cpp
+OBJECTS = $(SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 
-OBJECTS = $(SOURCES:%.cpp=build/%.o)
+OBJECT_STACK_EMU = $(BUILD_DIR)/src/stack_emu.o
+OBJECT_TEST = $(BUILD_DIR)/test/test.o
 
-OBJECT_EXECUTABLE = build/src/stack_emu.o
-OBJECT_TEST = build/test/test.o
+EXECUTABLE_STACK_EMU = $(BUILD_DIR)/stack_emu_
+EXECUTABLE_TEST = $(BUILD_DIR)/test_
 
-EXECUTABLE_SOURCE = build/stack_emu.o
-EXECUTABLE_TEST = build/test.o
+# https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+DEPDIR := $(BUILD_DIR)/.deps
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
-build/%.o: %.cpp $(INCLUDES)
-	@mkdir -p build/src
-	@mkdir -p build/common
-	@mkdir -p build/stack
-	@mkdir -p build/vector
-	@mkdir -p build/deque
-	@mkdir -p build/test
-	@mkdir -p build/long_arithmetic/arithmetic
-	@mkdir -p build/long_arithmetic/fft
-	$(CC) -c $< $(CFLAGS) -o $@
+COMPILE.cpp = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
-default: $(EXECUTABLE_SOURCE) $(EXECUTABLE_TEST)
+$(BUILD_DIR)/%.o: %.cpp $(DEPDIR)/%.d | $(DEPDIR)
+	@mkdir -p `echo $@ | cut -b -\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+$(BUILD_DIR)/%.o: %.cpp
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+
+$(DEPDIR): ; @mkdir -p $@
+
+DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
+$(DEPFILES):
+# # #
 
 $(EXECUTABLE_TEST): $(OBJECTS) $(OBJECT_TEST)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_TEST) -o $@
 
-$(EXECUTABLE_SOURCE): $(OBJECTS) $(OBJECT_EXECUTABLE)
-	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_EXECUTABLE) -o $@
+$(EXECUTABLE_STACK_EMU): $(OBJECTS) $(OBJECT_STACK_EMU)
+	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_STACK_EMU) -o $@
 
+build: $(EXECUTABLE_TEST) $(EXECUTABLE_STACK_EMU)
 
-run: $(EXECUTABLE_SOURCE)
-	./$(EXECUTABLE_SOURCE)
+run: $(EXECUTABLE_STACK_EMU)
+	./$(EXECUTABLE_STACK_EMU)
 
 test: $(EXECUTABLE_TEST)
 	./$(EXECUTABLE_TEST)
@@ -70,21 +73,6 @@ test: $(EXECUTABLE_TEST)
 clean:
 	rm -rf build
 
-.PHONY: run test clean default
-
-# https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
-DEPDIR := .deps
-DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
-
-COMPILE.cpp = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
-
-%.o : %.cpp
-%.o : %.cpp $(DEPDIR)/%.d | $(DEPDIR)
-	$(COMPILE.c) $(OUTPUT_OPTION) $<
-
-$(DEPDIR): ; @mkdir -p $@
-
-DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
-$(DEPFILES):
+.PHONY: run test clean build
 
 include $(wildcard $(DEPFILES))
