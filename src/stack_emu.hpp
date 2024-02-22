@@ -27,7 +27,4 @@ namespace stack_emu {
 
 	bool compile(const char* filename, const char* dest);
 	bool emulate(const char* filename);
-
 }
-
-

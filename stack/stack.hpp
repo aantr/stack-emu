@@ -38,6 +38,7 @@ namespace stack_emu {
 		bool empty() const;
 		void pop();
 		void push(const T&);
+		void push(const T&&);
 		T& top() const;
 		T* data() const;
 
@@ -178,6 +179,12 @@ namespace stack_emu {
 
 	template <class T>
 	void stack<T>::push(const T& elem) {
+		reserve_(sz + 1);
+		data_[sz - 1] = elem;
+	}
+
+	template <class T>
+	void stack<T>::push(const T&& elem) {
 		reserve_(sz + 1);
 		data_[sz - 1] = elem;
 	}

@@ -1,34 +1,13 @@
 CC = g++
 
-CFLAGS = \
+CFLAGS += \
 	-std=c++17 \
 	-O2 \
 	-Wall      \
 	-Wextra    \
 	-Werror \
 
-LDFLAGS =
-
-BRED    = \033[1;31m
-BGREEN  = \033[1;32m
-BYELLOW = \033[1;33m
-GREEN   = \033[1;35m
-BCYAN   = \033[1;36m
-RESET   = \033[0m
-
-# project dependencies	
-INCLUDES =  src/stack_emu.hpp \
-			src/compile.cpp \
-			src/emulate.cpp \
-			src/stack_emu.cpp \
-			long_arithmetic/arithmetic/arithmetic.hpp \
-			long_arithmetic/fft/fft.hpp \
-			stack/stack.hpp \
-			vector/vector.hpp \
-			deque/deque.hpp \
-			test/test.cpp \
-			test/test_system.hpp \
-			common/iterators.hpp \
+LDFLAGS +=
 
 CFLAGS += -I $(abspath include) \
 		-I $(abspath stack)  \
@@ -63,7 +42,6 @@ EXECUTABLE_SOURCE = build/stack_emu.o
 EXECUTABLE_TEST = build/test.o
 
 build/%.o: %.cpp $(INCLUDES)
-	@printf "$(BYELLOW)Building object file $(BCYAN)$@$(RESET)\n"
 	@mkdir -p build/src
 	@mkdir -p build/common
 	@mkdir -p build/stack
@@ -77,11 +55,9 @@ build/%.o: %.cpp $(INCLUDES)
 default: $(EXECUTABLE_SOURCE) $(EXECUTABLE_TEST)
 
 $(EXECUTABLE_TEST): $(OBJECTS) $(OBJECT_TEST)
-	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
 	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_TEST) -o $@
 
 $(EXECUTABLE_SOURCE): $(OBJECTS) $(OBJECT_EXECUTABLE)
-	@printf "$(BYELLOW)Linking executable $(BCYAN)$@$(RESET)\n"
 	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_EXECUTABLE) -o $@
 
 
@@ -92,7 +68,23 @@ test: $(EXECUTABLE_TEST)
 	./$(EXECUTABLE_TEST)
 
 clean:
-	@printf "$(BYELLOW)Cleaning build directory $(RESET)\n"
 	rm -rf build
 
 .PHONY: run test clean default
+
+# https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+DEPDIR := .deps
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
+
+COMPILE.cpp = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+
+%.o : %.cpp
+%.o : %.cpp $(DEPDIR)/%.d | $(DEPDIR)
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
+$(DEPDIR): ; @mkdir -p $@
+
+DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
+$(DEPFILES):
+
+include $(wildcard $(DEPFILES))
