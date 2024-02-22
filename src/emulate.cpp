@@ -246,9 +246,6 @@ bool stack_emu::emulate(const char* filename) {
 			st.pop();
 			a.sqrt();
 			st.push(a);
-			#ifdef DEBUG
-			cout << inp << " " << a << " res: " << st.top() << endl;
-			#endif
 		}
 		#endif
 		else if (inp == "out") {
