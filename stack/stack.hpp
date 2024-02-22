@@ -73,11 +73,11 @@ namespace stack_emu {
 
 	template <class T>
 	void stack<T>::resize_() {
-		T* temp = new T[capacity];
+		T* temp = new T[capacity]();
 		size_t j = min(sz, capacity);
-        copy(data_, data_ + j, temp);
-        delete[] data_;
-        data_ = temp;
+		copy(data_, data_ + j, temp);
+		delete[] data_;
+		data_ = temp;
 	}
 
 	template <class T>
@@ -85,7 +85,7 @@ namespace stack_emu {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		capacity = 0;
 	}
 
@@ -94,7 +94,7 @@ namespace stack_emu {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		capacity = 0;
 		reserve_(sz_);
 	}
@@ -105,9 +105,9 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		capacity = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		reserve_(sz_);
-		fill(data_, data_ + sz_, elem);	
+		fill(data_, data_ + sz_, elem); 
 	}
 
 	template <class T>
@@ -116,7 +116,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = other.sz;
 		capacity = other.capacity;
-		data_ = new T[capacity];
+		data_ = new T[capacity]();
 		std::copy(other.data_, other.data_ + capacity, data_);
 	}
 
@@ -128,9 +128,9 @@ namespace stack_emu {
 		delete[] data_;
 		sz = other.sz;
 		capacity = other.capacity;
-		data_ = new T[capacity];
+		data_ = new T[capacity]();
 		std::copy(other.data_, other.data_ + capacity, data_);
-		return *this;		
+		return *this;       
 	}
 
 	template <class T>
@@ -143,7 +143,7 @@ namespace stack_emu {
 	}
 
 	template <class T>
-	stack<T>& stack<T>::operator=(stack &&other) noexcept {	
+	stack<T>& stack<T>::operator=(stack &&other) noexcept { 
 		if (&other == this) {
 			return *this;
 		}
@@ -203,7 +203,7 @@ namespace stack_emu {
 	}
 
 	template<class T>
-	bool stack<T>::operator==(const stack &other) const {		
+	bool stack<T>::operator==(const stack &other) const {       
 		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = 0; i < sz; i++) {
@@ -211,7 +211,7 @@ namespace stack_emu {
 				return false;
 			}
 		}
- 		return true;
+		return true;
 	}
 
 	template<class T>
@@ -223,6 +223,6 @@ namespace stack_emu {
 				return true;
 			}
 		}
- 		return false;
+		return false;
 	}
 }

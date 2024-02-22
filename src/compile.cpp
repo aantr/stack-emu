@@ -21,7 +21,7 @@ stack_emu::compile_error::compile_error(const std::string msg_): msg(msg_) {
 
 }
 const char * stack_emu::compile_error::what() const noexcept {
-    return msg.c_str();
+	return msg.c_str();
 }
 
 const stack_emu::vector<string> null_commands = {"begin", "end", "pop", "add", "sub", "mul", "div", "in", "out", "ret"};
@@ -124,7 +124,7 @@ bool stack_emu::compile(const char* filename, const char* dest) {
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),
-    			[](unsigned char c){ return std::tolower(c); });
+				[](unsigned char c){ return std::tolower(c); });
 		bool null_command = false;
 		for (auto i : null_commands) {
 			null_command |= i == inp;

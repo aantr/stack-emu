@@ -68,7 +68,7 @@ stack_emu::runtime_error::runtime_error(const std::string msg_): msg(msg_) {
 
 }
 const char * stack_emu::runtime_error::what() const noexcept {
-    return msg.c_str();
+	return msg.c_str();
 }
 
 size_t to_int(LongDouble v) {
@@ -125,7 +125,7 @@ bool stack_emu::emulate(const char* filename) {
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),
-    			[](unsigned char c){ return std::tolower(c); });
+				[](unsigned char c){ return std::tolower(c); });
 		if (inp == "begin") {
 			if (was_begin) {
 				throw stack_emu::runtime_error("double begin command");

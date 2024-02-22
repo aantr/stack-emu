@@ -28,9 +28,9 @@ namespace stack_emu {
 		typedef size_t size_type;
 		typedef T value_type;
 		typedef ra_iterator<T> iterator;
-    	typedef ra_iterator<const T> const_iterator;
-    	typedef ra_reverse_iterator<T> reverse_iterator;
-    	typedef ra_reverse_iterator<const T> const_reverse_iterator;
+		typedef ra_iterator<const T> const_iterator;
+		typedef ra_reverse_iterator<T> reverse_iterator;
+		typedef ra_reverse_iterator<const T> const_reverse_iterator;
 
 		vector();
 		vector(unsigned int sz);
@@ -102,9 +102,9 @@ namespace stack_emu {
 	void vector<T>::resize_() {
 		T* temp = new T[capacity];
 		size_t j = min(sz, capacity);
-        copy(data_, data_ + j, temp);
-        delete[] data_;
-        data_ = temp;
+		copy(data_, data_ + j, temp);
+		delete[] data_;
+		data_ = temp;
 	}
 
 	template <class T>
@@ -112,7 +112,7 @@ namespace stack_emu {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		capacity = 0;
 	}
 
@@ -121,7 +121,7 @@ namespace stack_emu {
 		static_assert(is_constructible<T>::value, "is_constructible");
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		capacity = 0;
 		reserve_(sz_);
 	}
@@ -132,7 +132,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		capacity = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		reserve_(sz_);
 		fill(data_, data_ + sz_, elem);
 	}
@@ -143,7 +143,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		capacity = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		reserve_(list.size());
 		auto it = list.begin();
 		for (size_t i = 0; i < list.size(); i++) {
@@ -157,7 +157,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = other.sz;
 		capacity = other.capacity;
-		data_ = new T[capacity];
+		data_ = new T[capacity]();
 		std::copy(other.data_, other.data_ + capacity, data_);
 	}
 
@@ -169,7 +169,7 @@ namespace stack_emu {
 		delete[] data_;
 		sz = other.sz;
 		capacity = other.capacity;
-		data_ = new T[capacity];
+		data_ = new T[capacity]();
 		std::copy(other.data_, other.data_ + capacity, data_);
 		return *this;		
 	}
@@ -340,7 +340,7 @@ namespace stack_emu {
 				return false;
 			}
 		}
- 		return true;
+		return true;
 	}
 
 	template<class T>
@@ -352,6 +352,6 @@ namespace stack_emu {
 				return true;
 			}
 		}
- 		return false;
+		return false;
 	}
 }

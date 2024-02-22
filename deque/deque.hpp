@@ -115,7 +115,7 @@ namespace stack_emu {
 	void deque<T>::resize_(size_t v) {
 		capacity = v * 2 + 2;
 		size_t b = v / 2 + 1;
-		T* temp = new T[capacity];
+		T* temp = new T[capacity]();
 		size_t j = min(sz, v);
         copy(data_ + begin_, data_ + begin_ + j, temp + b);
         delete[] data_;
@@ -129,7 +129,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin_ = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		capacity = 0;
 	}
 
@@ -139,7 +139,7 @@ namespace stack_emu {
 		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin_ = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		capacity = 0;
 		reserve_(sz_);
 	}
@@ -151,7 +151,7 @@ namespace stack_emu {
 		sz = 0;
 		begin_ = 0;
 		capacity = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		reserve_(sz_);
 		fill(data_ + begin_, data_ + begin_ + sz_, elem);
 	}
@@ -163,7 +163,7 @@ namespace stack_emu {
 		sz = 0;
 		begin_ = 0;
 		capacity = 0;
-		data_ = new T[0];
+		data_ = new T[0]();
 		reserve_(list.size());
 		fill(data_ + begin_, data_ + begin_ + list.size(), list.begin());
 
@@ -176,7 +176,7 @@ namespace stack_emu {
 		sz = other.sz;
 		begin_ = other.begin_;
 		capacity = other.capacity;
-		data_ = new T[capacity];
+		data_ = new T[capacity]();
 		std::copy(other.data_, other.data_ + capacity, data_);
 	}
 
@@ -189,7 +189,7 @@ namespace stack_emu {
 		sz = other.sz;
 		begin_ = other.begin_;
 		capacity = other.capacity;
-		data_ = new T[capacity];
+		data_ = new T[capacity]();
 		std::copy(other.data_, other.data_ + capacity, data_);
 		return *this;		
 	}
