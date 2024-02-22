@@ -37,7 +37,7 @@ namespace stack_emu {
 		vector(unsigned int sz, const T&);
 		vector(initializer_list<T>);
 
-		vector(const vector &ohter); // copy
+		vector(const vector &other); // copy
 		vector& operator=(const vector &other); // copy
 		vector(vector &&other) noexcept; // move
 		vector& operator=(vector &&other) noexcept; // move
@@ -134,9 +134,7 @@ namespace stack_emu {
 		capacity = 0;
 		data_ = new T[0];
 		reserve_(sz_);
-		for (size_t i = 0; i < sz_; i++) {
-			data_[i] = elem;
-		}
+		fill(data_, data_ + sz_, elem);
 	}
 
 	template <class T>
@@ -214,19 +212,19 @@ namespace stack_emu {
 
 	template <class T>
 	void vector<T>::resize(size_t v) {
-		auto prev_sz = sz;
+		size_t prev_sz = sz;
 		reserve_(v);
-		for (auto i = prev_sz; i < sz; i++) {
-			data_[i] = T();
+		if (prev_sz < sz) {
+			fill(data_ + prev_sz, data_ + sz, T());
 		}
 	}
 
 	template <class T>
 	void vector<T>::resize(size_t v, const T& el) {
-		auto prev_sz = sz;
+		size_t prev_sz = sz;
 		reserve_(v);
-		for (auto i = prev_sz; i < sz; i++) {
-			data_[i] = el;
+		if (prev_sz < sz) {
+			fill(data_ + prev_sz, data_ + sz, el);
 		}
 	}
 

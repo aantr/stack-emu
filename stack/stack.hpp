@@ -74,12 +74,7 @@ namespace stack_emu {
 	void stack<T>::resize_() {
 		T* temp = new T[capacity];
 		size_t j = min(sz, capacity);
-        for (size_t i = 0; i < j; i++) {
-            temp[i] = data_[i];
-        }
-        for (size_t i = j; i < capacity; i++) {
-            temp[i] = T();
-        }
+        copy(data_, data_ + j, temp);
         delete[] data_;
         data_ = temp;
 	}
@@ -111,9 +106,7 @@ namespace stack_emu {
 		capacity = 0;
 		data_ = new T[0];
 		reserve_(sz_);
-		for (size_t i = 0; i < sz_; i++) {
-			data_[i] = elem;
-		}		
+		fill(data_, data_ + sz_, elem);	
 	}
 
 	template <class T>

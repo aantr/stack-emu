@@ -42,7 +42,7 @@ namespace stack_emu {
 		deque(unsigned int sz, const T&);
 		deque(initializer_list<T>);
 
-		deque(const deque &ohter); // copy
+		deque(const deque &other); // copy
 		deque& operator=(const deque &other); // copy
 		deque(deque &&other) noexcept; // move
 		deque& operator=(deque &&other) noexcept; // move
@@ -153,9 +153,7 @@ namespace stack_emu {
 		capacity = 0;
 		data_ = new T[0];
 		reserve_(sz_);
-		for (size_t i = 0; i < sz_; i++) {
-			data_[begin_ + i] = elem;
-		}
+		fill(data_ + begin_, data_ + begin_ + sz_, elem);
 	}
 
 	template <class T>
@@ -167,10 +165,8 @@ namespace stack_emu {
 		capacity = 0;
 		data_ = new T[0];
 		reserve_(list.size());
-		auto it = list.begin();
-		for (size_t i = 0; i < list.size(); i++) {
-			data_[begin_ + i] = *it++;
-		}
+		fill(data_ + begin_, data_ + begin_ + list.size(), list.begin());
+
 	}
 
 	template <class T>
@@ -240,8 +236,8 @@ namespace stack_emu {
 	void deque<T>::resize(size_t v) {
 		size_t prev_sz = sz;
 		reserve_(v);
-		for (size_t i = prev_sz; i < sz; i++) {
-			data_[i + begin_] = T();
+		if (prev_sz < sz) {
+			fill(data_ + begin_ + prev_sz, data_ + begin_ + sz, T());
 		}
 	}
 
@@ -249,8 +245,8 @@ namespace stack_emu {
 	void deque<T>::resize(size_t v, const T& elem) {
 		size_t prev_sz = sz;
 		reserve_(v);
-		for (size_t i = prev_sz; i < sz; i++) {
-			data_[i + begin_] = elem;
+		if (prev_sz < sz) {
+			fill(data_ + begin_ + prev_sz, data_ + begin_ + sz, elem);
 		}
 	}
 

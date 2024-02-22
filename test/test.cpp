@@ -50,10 +50,9 @@ TEST_ (PushPop)
 	stack_emu::stack<int> s2(5, 5); // 5 fives
 	for (int i = 0; i < 5; i++) {
 		s.push(i + 1);
-
 	}
 	
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 5; i++) {		
 		ASSERT(s.top() == 5 - i);
 		s.pop();
 	}	
@@ -83,7 +82,7 @@ TEST_ (Equality)
 		s.pop();
 		s1.pop();
 		s2.pop();	
-	} cout << endl;
+	}
 
 	ASSERT(s == s1);
 
@@ -94,13 +93,13 @@ _TEST
 
 TEST_ (FiveRule)
 
-	stack_emu::stack<int> s; // empty
-	stack_emu::stack<int> s1(5); // 5 zeroes
-	stack_emu::stack<int> s2(5, 5); // 5 fives
+	stack_emu::stack<LongDouble> s; // empty
+	stack_emu::stack<LongDouble> s1(5); // 5 zeroes
+	stack_emu::stack<LongDouble> s2(5, 5); // 5 fives
 	auto s3 = s2; // copy
 	ASSERT(s3 == s2);
 
-	stack_emu::stack<int> s4{std::move(s3)};
+	stack_emu::stack<LongDouble> s4{std::move(s3)};
 	ASSERT(s4 == s2); // move
 	ASSERT(s2 != s3); // move effect
 
