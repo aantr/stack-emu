@@ -361,7 +361,6 @@ namespace stack_emu {
 
 	template<class T>
 	bool deque<T>::operator==(const deque &other) const {		
-		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = begin_; i < begin_ + sz; i++) {
 			if (!(data_[i] == other.data_[i])) {
@@ -373,7 +372,6 @@ namespace stack_emu {
 
 	template<class T>
 	bool deque<T>::operator!=(const deque &other) const {
-		static_assert(is_inequality_comparable<T>::value, "is_inequality_comparable");
 		if (other.sz != sz) return true;
 		for (size_t i = begin_; i < begin_ + sz; i++) {
 			if (data_[i] != other.data_[i]) {

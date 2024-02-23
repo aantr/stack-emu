@@ -144,6 +144,7 @@ namespace stack_emu {
 	}
 
 	template <class T>
+	vector<T>::vector(const vector &other) {
 		sz = other.sz;
 		capacity = other.capacity;
 		data_ = new T[capacity]();
@@ -320,7 +321,6 @@ namespace stack_emu {
 
 	template<class T>
 	bool vector<T>::operator==(const vector &other) const {		
-		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = 0; i < sz; i++) {
 			if (!(data_[i] == other.data_[i])) {
@@ -332,7 +332,6 @@ namespace stack_emu {
 
 	template<class T>
 	bool vector<T>::operator!=(const vector &other) const {
-		static_assert(is_inequality_comparable<T>::value, "is_inequality_comparable");
 		if (other.sz != sz) return true;
 		for (size_t i = 0; i < sz; i++) {
 			if (data_[i] != other.data_[i]) {

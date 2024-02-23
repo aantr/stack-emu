@@ -194,7 +194,6 @@ namespace stack_emu {
 
 	template<class T>
 	bool stack<T>::operator==(const stack &other) const {       
-		static_assert(is_equality_comparable<T>::value, "is_equality_comparable");
 		if (other.sz != sz) return false;
 		for (size_t i = 0; i < sz; i++) {
 			if (!(data_[i] == other.data_[i])) {
@@ -206,7 +205,6 @@ namespace stack_emu {
 
 	template<class T>
 	bool stack<T>::operator!=(const stack &other) const {
-		static_assert(is_inequality_comparable<T>::value, "is_inequality_comparable");
 		if (other.sz != sz) return true;
 		for (size_t i = 0; i < sz; i++) {
 			if (data_[i] != other.data_[i]) {
