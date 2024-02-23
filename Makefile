@@ -1,7 +1,8 @@
 # https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 # https://bnikolic.co.uk/blog/sh/make/unix/2021/07/08/makefile
+# https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
 # auto find headers & dependencies & FLAGS changes
-# build c++ project
+# build c++ project for unix (Darwin or Linux)
 
 BUILD_DIR = build
 UNAME := $(shell uname)
@@ -41,6 +42,13 @@ ALL_SOURCES = $(SOURCE_STACK_EMU) $(SOURCE_TEST) $(SOURCES)
 APP_STACK_EMU = $(BUILD_DIR)/stack_emu_
 APP_TEST = $(BUILD_DIR)/test_
 
+# if necessary
+# # Use the rest as arguments for "run"
+# RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+# # ...and turn them into do-nothing targets
+# $(eval $(RUN_ARGS):;@:)
+
+# Find dependencies, headers, compile
 CXXFLAGS += $(foreach f,$(INCLUDES),-I $(abspath $f))
 CXXFLAGS += $(foreach fn,$(shell find . -type f -name "*.hpp"),-I $(shell realpath `dirname $(fn)`))
 CXXFLAGS += $(foreach fn,$(shell find . -type f -name "*.h"),-I $(shell realpath `dirname $(fn)`))
@@ -66,7 +74,7 @@ $(DEPDIR): ; @mkdir -p $@
 DEPFILES := $(ALL_SOURCES:%.cpp=$(DEPDIR)/%.d)
 $(DEPFILES):
 
-# app commands
+# Commands
 $(APP_TEST): $(OBJECTS) $(OBJECT_TEST)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(OBJECT_TEST) -o $@
 
@@ -76,10 +84,8 @@ $(APP_STACK_EMU): $(OBJECTS) $(OBJECT_STACK_EMU)
 build: $(APP_TEST) $(APP_STACK_EMU)
 
 run: $(APP_STACK_EMU)
-	./$(APP_STACK_EMU)
 
 test: $(APP_TEST)
-	./$(APP_TEST)
 
 clean:
 	rm -rf build

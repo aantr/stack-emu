@@ -64,6 +64,9 @@ namespace arithmetic {
     }
 
     LongDouble& LongDouble::operator=(const LongDouble& other) { // C5267
+        #ifdef DEBUG
+        cout << "copy assignment for " << *this << endl;
+        #endif
         sign = other.sign;
         digits_size = other.digits_size;
         free(digits);
@@ -80,6 +83,9 @@ namespace arithmetic {
         if (this == &other) {
             return *this;
         }
+        #ifdef DEBUG
+        cout << "move assignment for " << *this << endl;
+        #endif
         free(digits);
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);

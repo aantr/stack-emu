@@ -75,6 +75,9 @@ namespace stack_emu {
 	void stack<T>::resize_() {
 		T* temp = new T[capacity]();
 		size_t j = min(sz, capacity);
+		#ifdef DEBUG
+		cout << "stack resize_ copy:" << endl;
+		#endif
 		copy(data_, data_ + j, temp);
 		delete[] data_;
 		data_ = temp;
@@ -101,7 +104,10 @@ namespace stack_emu {
 		capacity = 0;
 		data_ = new T[0]();
 		reserve_(sz_);
-		fill(data_, data_ + sz_, elem); 
+		#ifdef DEBUG
+		cout << "stack fill:" << endl;
+		#endif
+		fill(data_, data_ + sz_, elem);
 	}
 
 	template <class T>
@@ -109,6 +115,9 @@ namespace stack_emu {
 		sz = other.sz;
 		capacity = other.capacity;
 		data_ = new T[capacity]();
+		#ifdef DEBUG
+		cout << "stack copy:" << endl;
+		#endif
 		std::copy(other.data_, other.data_ + capacity, data_);
 	}
 
@@ -170,12 +179,18 @@ namespace stack_emu {
 	template <class T>
 	void stack<T>::push(const T& elem) {
 		reserve_(sz + 1);
+		#ifdef DEBUG
+		cout << "stack push lvalue:" << endl;
+		#endif
 		data_[sz - 1] = elem;
 	}
 
 	template <class T>
 	void stack<T>::push(const T&& elem) {
 		reserve_(sz + 1);
+		#ifdef DEBUG
+		cout << "stack push rvalue:" << endl;
+		#endif
 		data_[sz - 1] = elem;
 	}
 

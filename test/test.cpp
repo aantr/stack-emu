@@ -195,6 +195,29 @@ TEST_ (deque)
 
 _TEST
 
+TEST_ (LvalueTest)
+
+	stack_emu::stack<LongDouble> s; // empty
+	s.push(1_ld + 2_ld);
+	/*
+	stack push rvalue:
+	copy assignment for 0
+	destructor for 3
+	destructor for 2
+	destructor for 1
+	destructor for 3
+	*/
+	LongDouble val = 1;
+	s.push(val);
+	/*
+	stack push lvalue:
+	copy assignment for 0
+	destructor for 1
+	*/
+
+
+_TEST
+
 }
 
 int main() {
