@@ -125,8 +125,6 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::deque() {
-		static_assert(is_constructible<T>::value, "is_constructible");
-		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin_ = 0;
 		data_ = new T[0]();
@@ -135,8 +133,6 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::deque(unsigned int sz_) {
-		static_assert(is_constructible<T>::value, "is_constructible");
-		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin_ = 0;
 		data_ = new T[0]();
@@ -146,8 +142,6 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::deque(unsigned int sz_, const T& elem) {
-		static_assert(is_constructible<T>::value, "is_constructible");
-		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin_ = 0;
 		capacity = 0;
@@ -158,8 +152,6 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::deque(initializer_list<T> list) {
-		static_assert(is_constructible<T>::value, "is_constructible");
-		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = 0;
 		begin_ = 0;
 		capacity = 0;
@@ -171,8 +163,6 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::deque(const deque &other) { // copy
-		static_assert(is_constructible<T>::value, "is_constructible");
-		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		sz = other.sz;
 		begin_ = other.begin_;
 		capacity = other.capacity;
@@ -196,8 +186,6 @@ namespace stack_emu {
 
 	template <class T>
 	deque<T>::deque(deque &&other) noexcept {
-		static_assert(is_constructible<T>::value, "is_constructible");
-		static_assert(is_copy_constructible<T>::value, "is_copy_constructible");
 		data_ = exchange(other.data_, nullptr);
 		sz = exchange(other.sz, 0);
 		begin_ = exchange(other.begin_, 0);
