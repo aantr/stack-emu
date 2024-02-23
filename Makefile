@@ -1,26 +1,31 @@
+# https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+# https://bnikolic.co.uk/blog/sh/make/unix/2021/07/08/makefile
+# auto find headers & dependencies & FLAGS changes
+# build c++ project
+
 BUILD_DIR = build
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+SHA256COMMAND = sha256sum
+endif
+ifeq ($(UNAME), Darwin)
+SHA256COMMAND = shasum -a 256
+endif
+DEPDIR := $(BUILD_DIR)/.deps
 
 CC = g++
 
 CFLAGS += \
 	-std=c++17 \
-	-O2 \
+	-O3 \
 	-Wall      \
 	-Wextra    \
 	-Werror \
 
 LDFLAGS +=
 
-CFLAGS += -I $(abspath stack)  \
-		-I $(abspath src)  \
-		-I $(abspath vector)  \
-		-I $(abspath deque)  \
-		-I $(abspath test) \
-		-I $(abspath long_arithmetic/arithmetic) \
-		-I $(abspath long_arithmetic/fft) \
-		-I $(abspath common)
+INCLUDES = 
 
-# what needs to be compiled
 SOURCES = \
 	test/test_system.cpp \
 	src/compile.cpp \
@@ -29,49 +34,52 @@ SOURCES = \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
 	long_arithmetic/fft/fft.cpp \
 
+SOURCE_TEST = test/test.cpp
+SOURCE_STACK_EMU = src/stack_emu.cpp
+ALL_SOURCES = $(SOURCE_STACK_EMU) $(SOURCE_TEST) $(SOURCES)
 
-OBJECTS = $(SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+APP_STACK_EMU = $(BUILD_DIR)/stack_emu_
+APP_TEST = $(BUILD_DIR)/test_
 
-OBJECT_STACK_EMU = $(BUILD_DIR)/src/stack_emu.o
-OBJECT_TEST = $(BUILD_DIR)/test/test.o
+CFLAGS += $(foreach f,$(INCLUDES),-I $(abspath $f))
+CFLAGS += $(foreach fn,$(shell find . -type f -name "*.hpp"),-I $(shell realpath `dirname $(fn)`))
+CFLAGS += $(foreach fn,$(shell find . -type f -name "*.h"),-I $(shell realpath `dirname $(fn)`))
 
-EXECUTABLE_STACK_EMU = $(BUILD_DIR)/stack_emu_
-EXECUTABLE_TEST = $(BUILD_DIR)/test_
+ALLFLAGSC := $(CC) + $(foreach v,$(filter %FLAGS,$(.VARIABLES)),$($(v)))
+FLAGHASH := $(strip $(shell echo $(ALLFLAGSC) | $(SHA256COMMAND) | cut -d " " -f1 ))
 
-# https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
-DEPDIR := $(BUILD_DIR)/.deps
+OBJECTS := $(foreach f,$(SOURCES),$(BUILD_DIR)/$(basename $f)-$(FLAGHASH).o)
+OBJECT_STACK_EMU = $(foreach f,$(SOURCE_STACK_EMU),$(BUILD_DIR)/$(basename $f)-$(FLAGHASH).o)
+OBJECT_TEST = $(foreach f,$(SOURCE_TEST),$(BUILD_DIR)/$(basename $f)-$(FLAGHASH).o)
+
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
 COMPILE.cpp = $(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
-$(BUILD_DIR)/%.o: %.cpp $(DEPDIR)/%.d | $(DEPDIR)
-	@mkdir -p $(DEPDIR)/`echo $@ | cut -b \`expr 1 + \\\`echo $@ | cut -d / -f 1 | awk '{print length}'\\\`\`-\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
-	@mkdir -p `echo $@ | cut -b -\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
-	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
-$(BUILD_DIR)/%.o: %.cpp
+$(BUILD_DIR)/%-$(FLAGHASH).o: %.cpp $(DEPDIR)/%.d $(DEPDIR)/%.d # | $(DEPDIR)
 	@mkdir -p $(DEPDIR)/`echo $@ | cut -b \`expr 1 + \\\`echo $@ | cut -d / -f 1 | awk '{print length}'\\\`\`-\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
 	@mkdir -p `echo $@ | cut -b -\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
 $(DEPDIR): ; @mkdir -p $@
 
-DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
+DEPFILES := $(ALL_SOURCES:%.cpp=$(DEPDIR)/%.d)
 $(DEPFILES):
-# # #
 
-$(EXECUTABLE_TEST): $(OBJECTS) $(OBJECT_TEST)
+# app commands
+$(APP_TEST): $(OBJECTS) $(OBJECT_TEST)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_TEST) -o $@
 
-$(EXECUTABLE_STACK_EMU): $(OBJECTS) $(OBJECT_STACK_EMU)
+$(APP_STACK_EMU): $(OBJECTS) $(OBJECT_STACK_EMU)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(OBJECT_STACK_EMU) -o $@
 
-build: $(EXECUTABLE_TEST) $(EXECUTABLE_STACK_EMU)
+build: $(APP_TEST) $(APP_STACK_EMU)
 
-run: $(EXECUTABLE_STACK_EMU)
-	./$(EXECUTABLE_STACK_EMU)
+run: $(APP_STACK_EMU)
+	./$(APP_STACK_EMU)
 
-test: $(EXECUTABLE_TEST)
-	./$(EXECUTABLE_TEST)
+test: $(APP_TEST)
+	./$(APP_TEST)
 
 clean:
 	rm -rf build
