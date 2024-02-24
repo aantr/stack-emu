@@ -10,6 +10,7 @@
 #include <defines.hpp>
 #include <math.h>
 #include <climits>
+#include <utility>
 
 namespace arithmetic {
 
