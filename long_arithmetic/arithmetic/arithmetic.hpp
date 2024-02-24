@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #define PRECISION_ADD
 #define PRECISION_SUB
 #define MIN_PRECISION 1
