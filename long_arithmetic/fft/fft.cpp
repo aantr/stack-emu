@@ -7,6 +7,7 @@
 #include <fft.hpp>
 #include <iostream>
 #include <cstring>
+#include <cstdint>
 
 using namespace std;
 
