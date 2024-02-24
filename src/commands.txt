@@ -1,0 +1,25 @@
+print10:
+push 10
+out
+push 123
+pop
+ret
+
+begin
+
+in
+popr ax
+in
+popr bx
+in
+popr cx
+in
+popr dx
+in
+
+sqrt
+out
+
+call print10
+
+end
