@@ -50,8 +50,8 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 COMPILE.cpp = $(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
 $(BUILD_DIR)/%-$(FLAGHASH).o: %.cpp $(DEPDIR)/%.d $(DEPDIR)/%.d | $(DEPDIR)
-	@mkdir -p $(DEPDIR)/`echo $@ | cut -b \`expr 1 + \\\`echo $@ | cut -d / -f 1 | awk '{print length}'\\\`\`-\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
-	@mkdir -p `echo $@ | cut -b -\`expr \\\`echo $@ | awk '{print length}'\\\` - \\\`echo $@ | rev | cut -d / -f 1 | awk '{print length}'\\\` - 1\``
+	@mkdir -p  $(shell realpath $(DEPDIR)/`dirname $<`)
+	@mkdir -p  $(shell realpath `dirname $@`)
 	@echo "Building $<"
 	@$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
