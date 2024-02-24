@@ -50,8 +50,8 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 COMPILE.cpp = $(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 
 $(BUILD_DIR)/%-$(FLAGHASH).o: %.cpp $(DEPDIR)/%.d $(DEPDIR)/%.d | $(DEPDIR)
-	@mkdir -p  $(shell realpath $(DEPDIR)/`dirname $<`)
-	@mkdir -p  $(shell realpath `dirname $@`)
+	@mkdir -p  $(DEPDIR)/`dirname $<`
+	@mkdir -p  `dirname $@`
 	@echo "Building $<"
 	@$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
