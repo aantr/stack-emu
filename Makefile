@@ -1,3 +1,5 @@
+# Этот Makefile заставит твой проект --найти все зависимости и заголовки-- за 3 секунды! Тебе лишь нужно ...
+# Прописать пути ко всем .cpp файлам
 # https://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 # https://bnikolic.co.uk/blog/sh/make/unix/2021/07/08/makefile
 # https://stackoverflow.com/questions/2214575/passing-arguments-to-make-run
@@ -27,7 +29,7 @@ CXX = g++
 
 CXXFLAGS += \
 	-std=c++17 \
-	-O3 \
+	-Ofast \
 	-Wall      \
 	-Wextra    \
 	-Werror \
