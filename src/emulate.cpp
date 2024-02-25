@@ -121,7 +121,7 @@ bool stack_emu::emulate(const char* filename) {
 	size_t current_command = 0;
 	bool was_begin = false;
 
-	// emulaute
+	// emulate
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
 		std::transform(inp.begin(), inp.end(), inp.begin(),

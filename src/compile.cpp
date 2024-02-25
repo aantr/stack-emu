@@ -28,15 +28,15 @@ const stack_emu::vector<string> null_commands = {"begin", "end", "pop", "add", "
 
 void check_register_name(const string& reg) {
 	#ifdef CHECK_REGISTER_NAME
-	if (!(reg.size() == 2 && reg[0] >= 'a' && reg[0] < 'a' + MAX_REGISTERS && reg[1] == 'x')) {
-		throw compile_error("register name should be ax or bx or cx, etc... up to " + to_string(MAX_REGISTERS));
+	if (!((reg.size() == 2 && reg[0] >= 'a' && reg[0] < 'a' + MAX_REGISTERS && reg[1] == 'x') || reg == "pc")) {
+		throw compile_error("register name should be pc or ax or bx or cx, etc... up to " + to_string(MAX_REGISTERS));
 	}
 	#endif
 }
 
 void check_register_size(const stack_emu::vector<pair<string, size_t>>& registers) {
 	if (registers.size() > MAX_REGISTERS) {
-		compile_error("there are only " + to_string(MAX_REGISTERS) + " registers ");
+		compile_error("there are only " + to_string(MAX_REGISTERS) + " registers");
 	}
 }
 
