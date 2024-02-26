@@ -124,8 +124,6 @@ bool stack_emu::emulate(const char* filename) {
 	// emulate
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
-		std::transform(inp.begin(), inp.end(), inp.begin(),
-				[](unsigned char c){ return std::tolower(c); });
 		if (inp == "begin") {
 			if (was_begin) {
 				throw stack_emu::runtime_error("double begin command");

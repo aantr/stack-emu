@@ -29,7 +29,7 @@ const stack_emu::vector<string> null_commands = {"begin", "end", "pop", "add", "
 void check_register_name(const string& reg) {
 	#ifdef CHECK_REGISTER_NAME
 	if (!((reg.size() == 2 && reg[0] >= 'a' && reg[0] < 'a' + MAX_REGISTERS && reg[1] == 'x') || reg == "pc")) {
-		throw compile_error("register name should be pc or ax or bx or cx, etc... up to " + to_string(MAX_REGISTERS));
+		throw compile_error("invalid reg: " + reg + ", register name should be pc or ax or bx or cx, etc... up to " + to_string(MAX_REGISTERS));
 	}
 	#endif
 }
@@ -61,6 +61,8 @@ bool stack_emu::compile(const char* filename, const char* dest) {
 	#endif
 	stack_emu::vector<string> commands;
 	while (stream >> inp) { // read file
+		std::transform(inp.begin(), inp.end(), inp.begin(),
+				[](unsigned char c){ return std::tolower(c); });
 		size_t idx = inp.find("//");
 		if (idx == std::string::npos) {
 			commands.push_back(inp);
@@ -123,8 +125,6 @@ bool stack_emu::compile(const char* filename, const char* dest) {
 	size_t current_command = 0;
 	while (current_command < commands.size()) {
 		inp = commands[current_command++];
-		std::transform(inp.begin(), inp.end(), inp.begin(),
-				[](unsigned char c){ return std::tolower(c); });
 		bool null_command = false;
 		for (auto i : null_commands) {
 			null_command |= i == inp;

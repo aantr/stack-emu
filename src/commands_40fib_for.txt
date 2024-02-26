@@ -1,36 +1,46 @@
-	BEGIN
-PUSH 1
-PUSH 1
+begin
+push 1
+push 1
 
-POPR 0
-PUSHR 0
-OUT
-PUSHR 0
+popr ax
+popr bx
+pushr bx
+pushr ax
+out
+pushr ax
 
-PUSH 39
-PUSH 1
+push 39
+push 1
 
-LABEL for
+for:
 
-PUSH 1
-ADD
-POPR 3
-POPR 4
+push 1
+add
+popr cx
+popr dx
 
-POPR 0
-POPR 1
-PUSHR 0
-PUSHR 1
-PUSHR 0
-ADD
-POPR 0
-PUSHR 0
-OUT
-PUSHR 0
+popr ax
+popr bx
+pushr ax
+pushr bx
+pushr ax
 
-PUSHR 4
-PUSHR 3
+add
 
-JNE for
+popr ax
+pushr ax
+out
+pushr ax
 
-END
+
+pushr dx
+pushr cx
+pushr dx
+pushr cx
+
+jne for
+
+// clear
+pop pop pop pop
+
+end
