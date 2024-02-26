@@ -10,7 +10,6 @@
 
 
 namespace stack_emu {
-	using namespace std;
 
 	template<class T>
 	class stack {
@@ -39,7 +38,8 @@ namespace stack_emu {
 		void pop();
 		void push(const T&);
 		void push(const T&&);
-		T& top() const;
+		T& top();
+		const T& top() const;
 		T* data() const;
 
 		bool operator==(const stack &other) const;
@@ -74,11 +74,11 @@ namespace stack_emu {
 	template <class T>
 	void stack<T>::resize_() {
 		T* temp = new T[capacity]();
-		size_t j = min(sz, capacity);
+		size_t j = std::min(sz, capacity);
 		#ifdef DEBUG
 		cout << "stack resize_ copy:" << endl;
 		#endif
-		copy(data_, data_ + j, temp);
+		std::copy(data_, data_ + j, temp);
 		delete[] data_;
 		data_ = temp;
 	}
@@ -136,9 +136,9 @@ namespace stack_emu {
 
 	template <class T>
 	stack<T>::stack(stack &&other) noexcept {
-		data_ = exchange(other.data_, nullptr);
-		sz = exchange(other.sz, 0);
-		capacity = exchange(other.capacity, 0);
+		data_ = std::exchange(other.data_, nullptr);
+		sz = std::exchange(other.sz, 0);
+		capacity = std::exchange(other.capacity, 0);
 	}
 
 	template <class T>
@@ -147,9 +147,9 @@ namespace stack_emu {
 			return *this;
 		}
 		delete[] data_;
-		data_ = exchange(other.data_, nullptr);
-		sz = exchange(other.sz, 0);
-		capacity = exchange(other.capacity, 0);
+		data_ = std::exchange(other.data_, nullptr);
+		sz = std::exchange(other.sz, 0);
+		capacity = std::exchange(other.capacity, 0);
 		return *this;
 	}
 
@@ -171,7 +171,7 @@ namespace stack_emu {
 	template <class T>
 	void stack<T>::pop() {
 		if (sz == 0) {
-			throw runtime_error("Pop from empty stack");
+			throw std::runtime_error("pop from empty stack");
 		}
 		reserve_(sz - 1);
 	}
@@ -195,11 +195,16 @@ namespace stack_emu {
 	}
 
 	template<class T>
-	T& stack<T>::top() const {
+	T& stack<T>::top() {
 		if (sz == 0) {
-			throw runtime_error("Cannot get from empty stack");
+			throw std::runtime_error("cannot get from empty stack");
 		}
 		return data_[sz - 1];
+	}
+
+	template<class T>
+	const T& stack<T>::top() const {
+		return static_cast<const T&>(*this).top();
 	}
 
 	template<class T>

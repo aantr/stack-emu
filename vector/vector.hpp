@@ -35,7 +35,7 @@ namespace stack_emu {
 		vector();
 		vector(unsigned int sz);
 		vector(unsigned int sz, const T&);
-		vector(initializer_list<T>);
+		vector(std::initializer_list<T>);
 
 		vector(const vector &other); // copy
 		vector& operator=(const vector &other); // copy
@@ -101,8 +101,8 @@ namespace stack_emu {
 	template <class T>
 	void vector<T>::resize_() {
 		T* temp = new T[capacity];
-		size_t j = min(sz, capacity);
-		copy(data_, data_ + j, temp);
+		size_t j = std::min(sz, capacity);
+		std::copy(data_, data_ + j, temp);
 		delete[] data_;
 		data_ = temp;
 	}
@@ -128,11 +128,11 @@ namespace stack_emu {
 		capacity = 0;
 		data_ = new T[0]();
 		reserve_(sz_);
-		fill(data_, data_ + sz_, elem);
+		std::fill(data_, data_ + sz_, elem);
 	}
 
 	template <class T>
-	vector<T>::vector(initializer_list<T> list) {
+	vector<T>::vector(std::initializer_list<T> list) {
 		sz = 0;
 		capacity = 0;
 		data_ = new T[0]();
@@ -166,9 +166,9 @@ namespace stack_emu {
 
 	template <class T>
 	vector<T>::vector(vector &&other) noexcept {
-		data_ = exchange(other.data_, nullptr);
-		sz = exchange(other.sz, 0);
-		capacity = exchange(other.capacity, 0);
+		data_ = std::exchange(other.data_, nullptr);
+		sz = std::exchange(other.sz, 0);
+		capacity = std::exchange(other.capacity, 0);
 	}
 
 	template <class T>
@@ -177,9 +177,9 @@ namespace stack_emu {
 			return *this;
 		}
 		delete[] data_;
-		data_ = exchange(other.data_, nullptr);
-		sz = exchange(other.sz, 0);
-		capacity = exchange(other.capacity, 0);
+		data_ = std::exchange(other.data_, nullptr);
+		sz = std::exchange(other.sz, 0);
+		capacity = std::exchange(other.capacity, 0);
 		return *this;
 	}
 
@@ -203,7 +203,7 @@ namespace stack_emu {
 		size_t prev_sz = sz;
 		reserve_(v);
 		if (prev_sz < sz) {
-			fill(data_ + prev_sz, data_ + sz, T());
+			std::fill(data_ + prev_sz, data_ + sz, T());
 		}
 	}
 
@@ -212,14 +212,14 @@ namespace stack_emu {
 		size_t prev_sz = sz;
 		reserve_(v);
 		if (prev_sz < sz) {
-			fill(data_ + prev_sz, data_ + sz, el);
+			std::fill(data_ + prev_sz, data_ + sz, el);
 		}
 	}
 
 	template <class T>
 	void vector<T>::pop_back() {
 		if (sz == 0) {
-			throw runtime_error("Pop from empty vector");
+			throw std::runtime_error("Pop from empty vector");
 		}
 		reserve_(sz - 1);
 	}
@@ -233,7 +233,7 @@ namespace stack_emu {
 	template<class T>
 	T& vector<T>::front() const {
 		if (sz == 0) {
-			throw runtime_error("Cannot get from empty vector");
+			throw std::runtime_error("Cannot get from empty vector");
 		}
 		return data_[0];
 	}
@@ -241,7 +241,7 @@ namespace stack_emu {
 	template<class T>
 	T& vector<T>::back() const {
 		if (sz == 0) {
-			throw runtime_error("Cannot get from empty vector");
+			throw std::runtime_error("Cannot get from empty vector");
 		}
 		return data_[sz - 1];
 	}
@@ -249,7 +249,7 @@ namespace stack_emu {
 	template<class T>
 	T& vector<T>::operator[](size_t index) const {
 		if (index >= sz) {
-			throw runtime_error("Index out of range");
+			throw std::runtime_error("Index out of range");
 		}
 		return data_[index];
 	}

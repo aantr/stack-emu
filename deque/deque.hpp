@@ -9,7 +9,6 @@
 #include <iterators.hpp>
 
 namespace stack_emu {
-	using namespace std;
 
 	template<class T>
 	class deque {
