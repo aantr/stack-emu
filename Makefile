@@ -24,11 +24,15 @@ MAKEFILE_COMPLETE := $(CURDIR)/$(MAKEFILE_JUSTNAME)
 # RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 # # ...and turn them into do-nothing targets
 # $(eval $(RUN_ARGS):;@:)
-
+ifeq ($(UNAME), Darwin)
+CXX = g++-13
+endif
+ifeq ($(UNAME), Linux)
 CXX = g++
+endif
 
 CXXFLAGS += \
-	-std=c++17 \
+	-std=c++23 \
 	-Ofast \
 	-Wall      \
 	-Wextra    \
