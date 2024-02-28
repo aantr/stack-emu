@@ -89,18 +89,21 @@ bool stack_emu::emulate(const char* filename) {
 		std::string start = p.get();
 		bool end_ = false;
 		bool was = false;
-		cout << start << endl;
-		for (auto &i : commands_do_nothing) {
+		for (command* i : commands_do_nothing) {
 			if (i->check_name(start)) {
 				if (i->exec(p) == true) {
+
 					end_ = true;
 				}
 				was = true;
 				break;
 			}
 		}
+		if (!was && p.was_begin == false) {
+			continue;
+		}
 		if (!was && p.was_begin == true) {
-			for (auto &i : commands) {
+			for (command* i : commands) {
 				if (i->check_name(start)) {
 					if (i->exec(p) == true) {
 						end_ = true;

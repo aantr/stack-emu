@@ -89,6 +89,9 @@ namespace stack_emu {
 
 	class command_label: public command {
 	public:
+		command_label() {
+			name = "label";
+		}
 		bool check_name(std::string &name_) const override {
 			return name_.size() > 0 && name_.back() == ':';
 		}
