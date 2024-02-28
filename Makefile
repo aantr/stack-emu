@@ -74,6 +74,7 @@ SOURCES_STACK_EMU = \
 	src/compile.cpp \
 	src/emulate.cpp \
 	src/stack_emu.cpp \
+	src/parser.cpp \
 	long_arithmetic/arithmetic/arithmetic.cpp \
 	long_arithmetic/arithmetic/arithmetic_operators.cpp \
 	long_arithmetic/fft/fft.cpp \

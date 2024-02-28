@@ -49,6 +49,9 @@ namespace stack_emu {
 
 }
 
+using std::cout;
+using std::endl;
+
 namespace stack_emu {
 
 	template <class T>

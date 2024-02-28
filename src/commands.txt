@@ -1,25 +1,46 @@
-print10:
-push 10
-out
-push 123
-pop
-ret
-
 begin
+push 1
+push 1
 
-in
 popr ax
-in
 popr bx
-in
-popr cx
-in
-popr dx
-in
-
-sqrt
+pushr bx
+pushr ax
 out
+pushr ax
 
-call print10
+push 39
+push 1
+
+for:
+
+push 1
+add
+popr cx
+popr dx
+
+popr ax
+popr bx
+pushr ax
+pushr bx
+pushr ax
+
+add
+
+popr ax
+pushr ax
+out
+pushr ax
+
+
+pushr dx
+pushr cx
+pushr dx
+pushr cx
+
+jne for
+
+// clear
+pop pop pop pop
 
 end

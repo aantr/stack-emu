@@ -1,6 +1,9 @@
 #pragma once
 
-#define DEBUG
+#include <string>
+#include <exception>
+
+// #define DEBUG
 // #define USE_INT		
 #define PRECISION 16
 #define MAX_REGISTERS 8
