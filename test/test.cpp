@@ -17,6 +17,55 @@ TestSystem ts;
 #undef TEST_SYSTEM
 #define TEST_SYSTEM ts
 
+class test_methods {
+private:
+	unsigned int sz;
+public:
+	test_methods() {
+		sz = 0;
+		cout << "call copy constructor of " << sz << endl;
+	}
+	test_methods(unsigned int sz): sz(sz) {
+		cout << "call constructor of " << sz << endl;
+	}
+
+	test_methods(const test_methods &other) {
+		sz = other.sz;
+		cout << "call copy constructor of " << sz << endl;
+	}
+	test_methods& operator=(const test_methods &other) {
+		if (&other == this) {
+			return *this;
+		}
+		sz = other.sz;
+		cout << "call copy assignment of " << sz << endl;
+		return *this;
+	}
+	test_methods(test_methods &&other) noexcept {
+		sz = std::exchange(other.sz, 0u);
+		cout << "call move constructor of " << sz << endl;
+	}
+	test_methods& operator=(test_methods &&other) noexcept {
+		if (this == &other) {
+			return *this;
+		}
+		sz = std::exchange(other.sz, 0u);
+		cout << "call move assignment of " << sz << endl;
+		return *this;
+	}
+
+	~test_methods() {
+		cout << "call destructor of " << sz << endl;
+	}
+
+	bool operator==(const test_methods &other) const {		
+		return sz == other.sz;
+	}
+	bool operator!=(const test_methods &other) const {		
+		return sz != other.sz;
+	}
+};
+
 void add_tests() {
 
 TEST_ (Init)
@@ -92,14 +141,15 @@ _TEST
 
 
 TEST_ (FiveRule)
-
-	stack_emu::stack<LongDouble> s; // empty
-	stack_emu::stack<LongDouble> s1(5); // 5 zeroes
-	stack_emu::stack<LongDouble> s2(5, 5); // 5 fives
+	
+	#define Type test_methods
+	stack_emu::stack<Type> s; // empty
+	stack_emu::stack<Type> s1(5); // 5 zeroes
+	stack_emu::stack<Type> s2(5, 5); // 5 fives
 	auto s3 = s2; // copy
 	ASSERT(s3 == s2);
 
-	stack_emu::stack<LongDouble> s4{std::move(s3)};
+	stack_emu::stack<Type> s4{std::move(s3)};
 	ASSERT(s4 == s2); // move
 	ASSERT(s2 != s3); // move effect
 
@@ -195,10 +245,10 @@ TEST_ (deque)
 
 _TEST
 
-TEST_ (LvalueTest)
+TEST_ (LRvalueTest)
 
 	stack_emu::stack<LongDouble> s; // empty
-	s.push(1_ld + 2_ld);
+	s.push(1_ld + 2);
 	/*
 	stack push rvalue:
 	copy assignment for 0

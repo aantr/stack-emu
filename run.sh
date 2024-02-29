@@ -1,7 +1,6 @@
 #! /bin/sh
 safeRunCommand() {
-  typeset cmnd="$*"
-  typeset ret_code
+  cmnd="$*"
 
   eval $cmnd
   ret_code=$?

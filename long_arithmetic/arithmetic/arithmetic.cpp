@@ -60,14 +60,14 @@ namespace arithmetic {
     }
 
     LongDouble::LongDouble(LongDouble &&other) noexcept {
-        #ifdef DEBUG
-        cout << "move constructor for " << *this << endl;
-        #endif
         sign = exchange(other.sign, 1);
         digits = exchange(other.digits, nullptr);
         digits_size = exchange(other.digits_size, 0);
         precision = exchange(other.precision, default_precision);
         exponent = exchange(other.exponent, 0);
+        #ifdef DEBUG
+        cout << "move constructor for " << *this << endl;
+        #endif
     }
 
     LongDouble::~LongDouble() {
