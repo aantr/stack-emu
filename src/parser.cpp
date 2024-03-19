@@ -12,7 +12,7 @@ namespace stack_emu {
 		#endif
 	}
 
-	void check_register_size(const stack_emu::vector<pair<string, size_t>>& registers) {
+	void check_register_size(const stack_emu::vector<pair<std::string, size_t>>& registers) {
 		if (registers.size() > MAX_REGISTERS) {
 			compile_error("there are only " + to_string(MAX_REGISTERS) + " registers");
 		}
@@ -49,8 +49,7 @@ namespace stack_emu {
 	}
 
 	size_t parser::get_register(std::string reg) {
-		size_t idx = lower_bound(registers.data(), registers.data() + registers.size(), 
-			pair<string, size_t>{reg, 0}) - registers.data();
+		size_t idx = lower_bound(registers.data(), registers.data() + registers.size(), pair<std::string, size_t>{reg, 0}) - registers.data();
 		if (idx >= registers.size() || registers[idx].first != reg) {
 			return SIZE_MAX;
 		}
@@ -61,7 +60,7 @@ namespace stack_emu {
 		string inp;
 		while (stream >> inp) { // read file
 			std::transform(inp.begin(), inp.end(), inp.begin(),
-					[](unsigned char c){ return std::tolower(c); });
+				[](unsigned char c){ return std::tolower(c); });
 			size_t idx = inp.find("//");
 			if (idx == std::string::npos) {
 				commands.push_back(inp);
@@ -79,6 +78,7 @@ namespace stack_emu {
 					throw stack_emu::compile_error("label declare should be unique " + commands[i].substr(0, commands[i].size() - 1));
 				}
 				labels.push_back({commands[i].substr(0, commands[i].size() - 1), i + 1});
+				std::sort(labels.data(), labels.data() + labels.size());
 				commands[i] = to_string(i + 1) + ":";
 			}
 		}
@@ -91,14 +91,14 @@ namespace stack_emu {
 					commands[i + 1] = to_string(get_register(commands[i + 1]));
 				} else {
 					registers.push_back({commands[i + 1], registers.size()});
+					std::sort(registers.data(), registers.data() + registers.size());
 					check_register_name(commands[i + 1]);
 					check_register_size(registers);
 					commands[i + 1] = to_string(registers.size() - 1);
 				}
 			}
 		}
-		std::sort(labels.data(), labels.data() + labels.size());
-		std::sort(registers.data(), registers.data() + registers.size());
+		
 	}
 
 	std::string parser::get() {

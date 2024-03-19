@@ -86,8 +86,6 @@ TEST_ (Equality)
 
 	ASSERT(s == s1);
 
-
-
 _TEST
 
 
@@ -176,6 +174,7 @@ TEST_ (deque)
 		s1.push_back(1);
 		s1.push_front(2);
 	}
+	
 	for (int i = 0; i < 500; i++) {
 		s1.pop_back();
 		s1.pop_front();

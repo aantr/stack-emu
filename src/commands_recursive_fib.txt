@@ -1,0 +1,37 @@
+// main
+begin
+push 1
+push 1
+in
+popr cx
+call calcfib
+out 
+out
+
+end
+
+// function declaration
+calcfib:
+	pushr cx
+	push 0
+	jeq return
+
+	pushr cx
+	push 1
+	sub
+	popr cx
+
+	// calculate here
+	popr bx
+	popr ax
+	pushr bx
+	pushr bx
+	pushr ax
+	add
+
+	call calcfib
+
+// for if statement
+return:
+	ret
+
