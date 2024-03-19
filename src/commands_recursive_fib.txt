@@ -24,6 +24,12 @@ calcfib:
 	// calculate here
 	popr bx
 	popr ax
+
+	// out
+	pushr ax
+	out
+
+	// add
 	pushr bx
 	pushr bx
 	pushr ax
