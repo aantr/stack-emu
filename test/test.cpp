@@ -23,7 +23,7 @@ private:
 public:
 	test_methods() {
 		sz = 0;
-		cout << "call copy constructor of " << sz << endl;
+		cout << "call default constructor of " << sz << endl;
 	}
 	test_methods(unsigned int sz): sz(sz) {
 		cout << "call constructor of " << sz << endl;
@@ -63,6 +63,9 @@ public:
 	}
 	bool operator!=(const test_methods &other) const {		
 		return sz != other.sz;
+	}
+	test_methods operator+(const test_methods &other) const {		
+		return test_methods(sz + other.sz);
 	}
 };
 
@@ -265,6 +268,17 @@ TEST_ (LRvalueTest)
 	*/
 
 
+_TEST
+
+TEST_ (LRvalueTest)
+	
+	using T = test_methods;
+	stack_emu::stack<T> s; // empty
+	T one(1), two(2);
+	s.push(one + two); // calls move
+	s.push(T(1)); // calls move
+	s.push(one); // calls copy;
+	
 _TEST
 
 }

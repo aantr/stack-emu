@@ -37,7 +37,7 @@ namespace stack_emu {
 		bool empty() const;
 		void pop();
 		void push(const T&);
-		void push(const T&&);
+		void push(T&&);
 		T& top();
 		const T& top() const;
 		T* data() const;
@@ -189,12 +189,12 @@ namespace stack_emu {
 	}
 
 	template <class T>
-	void stack<T>::push(const T&& elem) {
+	void stack<T>::push(T&& elem) {
 		reserve_(sz + 1);
 		#ifdef DEBUG
 		cout << "stack push rvalue:" << endl;
 		#endif
-		data_[sz - 1] = elem;
+		data_[sz - 1] = exchange(elem, T());
 	}
 
 	template<class T>
